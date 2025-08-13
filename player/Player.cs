@@ -1,17 +1,75 @@
-using Godot;
+﻿using Godot;
 
 public partial class Player : CharacterBody3D
 {
-    private const float _speed = 20;
+    private const float _speed = 10;
+    private const float _xSensitivity = 0.002f;
+    private const float _ySensitivity = 0.002f;
+    private Node3D _neck;
+    private Camera3D _camera;
+
+    private void _ready()
+    {
+        _neck = GetNode<Node3D>("Neck");
+        _camera = GetNode<Camera3D>("Neck/Camera");
+    }
 
     private void _process(float delta)
     {
-        var direction = new Vector3(
-            Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
-            0,
-            Input.GetActionStrength("move_forward") - Input.GetActionStrength("move_back")
-        );
+        HandleMovement(delta);
+    }
+
+    private void HandleMovement(float delta)
+    {
+        var direction = Input.GetVector("left", "right", "forward", "back");
         direction = direction.Normalized();
-        MoveAndCollide(direction * delta * _speed);
+
+        var speedDirection = direction * _speed;
+
+        var movementVector = new Vector3(
+            speedDirection.X,
+            -9f,
+            speedDirection.Y
+        );
+
+        var rotationAxis = _neck.Rotation.Normalized();
+        var rotationLength = _neck.Rotation.Length();
+
+        Velocity = rotationAxis == Vector3.Zero ? movementVector : movementVector.Rotated(rotationAxis, rotationLength);
+
+        MoveAndSlide();
+    }
+
+    private void _unhandled_input(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton)
+        {
+            Input.SetMouseMode(Input.MouseModeEnum.Captured);
+        }
+        else if (@event.IsActionPressed("ui_cancel"))
+        {
+            Input.SetMouseMode(Input.MouseModeEnum.Visible);
+        }
+        if (Input.MouseMode == Input.MouseModeEnum.Captured)
+        {
+            if (@event is InputEventMouseMotion ev)
+            {
+                var yRotation = -ev.Relative.X * _ySensitivity;
+                var xRotation = -ev.Relative.Y * _xSensitivity;
+                _neck.RotateY(yRotation);
+                _camera.Rotation += Vector3.Right * xRotation;
+                if (_camera.Rotation.X >= Mathf.Pi / 2)
+                {
+                    _camera.Rotation = new Vector3(Mathf.Pi / 2, _camera.Rotation.Y, _camera.Rotation.Z);
+                }
+                _camera.Rotation += Vector3.Right * xRotation;
+                // GD.Print(_camera.RotationDegrees);
+                // if (Mathf.Abs(_camera.RotationDegrees.X + xRotation) < 90) {
+                //     _camera.RotateX(xRotation);
+                // } else {
+                //     _camera.RotationDegrees = new Vector3(0, 0, 0);
+                // }
+            }
+        }
     }
 }

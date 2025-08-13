@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://dj0feotq8evgv"]
+
+[ext_resource type="Script" uid="uid://dyp0o8n8omr5" path="res://block/Block.cs" id="1_07jjg"]
+[ext_resource type="PackedScene" uid="uid://b1jqfbj67cwhx" path="res://block/face.tscn" id="2_p2cip"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_07jjg"]
+friction = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h2yge"]
+
+[node name="Block" type="StaticBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_07jjg")
+script = ExtResource("1_07jjg")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_h2yge")
+
+[node name="North" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -0.5)
+skeleton = NodePath("")
+
+[node name="South" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
+skeleton = NodePath("")
+
+[node name="East" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.5, 0, 0)
+skeleton = NodePath("")
+
+[node name="West" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.5, 0, 0)
+skeleton = NodePath("")
+
+[node name="Up" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.5, 0)
+skeleton = NodePath("")
+
+[node name="Down" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.5, 0)
