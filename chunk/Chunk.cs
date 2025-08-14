@@ -3,14 +3,28 @@ using System.Collections.Generic;
 
 public partial class Chunk : Node3D
 {
-    private Node3D _chunkNode;
-    private Dictionary<(int x, int y, int z), BlockData> _blocks;
+    private readonly Dictionary<(int x, int y, int z), BlockData> _blocks = [];
+    private const int sideLength = 16;
+    private const int minHeight = -64;
+    private const int maxHeight = 0;
+
+    private static readonly PackedScene blockPrefab = ResourceLoader
+      .Load<PackedScene>("res://block/block.tscn");
+
+    public void RenderBlock(BlockData blockData, int renderMode = 0)
+    {
+        if (renderMode == 0)
+            return;
+        if (blockData.Type == BlockType.Air)
+            return;
+        var block = blockPrefab.Instantiate<Block>();
+        block.Position = blockData.Position;
+        AddChild(block);
+        block.RenderFaces(renderMode);
+    }
 
     private void _ready()
     {
-        _chunkNode = GetNode<Node3D>("Chunk");
-        return;
-
         generateBlocks();
         renderBlocks();
 
@@ -19,21 +33,19 @@ public partial class Chunk : Node3D
 
     private void generateBlocks()
     {
-        var noiseGenerator = new PerlinNoise();
+        // var noiseGenerator = new PerlinNoise();
 
-        for (var x = 0; x < 16; x++)
+        for (var x = 0; x < sideLength; x++)
         {
-            for (var z = 0; z < 16; z++)
+            for (var z = 0; z < sideLength; z++)
             {
-                int maxHeight = 256;
 
-                float scale = 8;
-                var noise = noiseGenerator.Noise(x / scale, z / scale);
+                // float scale = 8;
+                // var noise = noiseGenerator.Noise(x / scale, z / scale);
+                // var height = Mathf.Max(Mathf.Floor(noise * maxHeight), 1);
 
-                var height = Mathf.Max(Mathf.Floor(noise * maxHeight), 1);
-
-                for (var y = -maxHeight; y < 0; y++)
-                    _blocks.Add((x, y, z), Block.GetBlock(new Vector3(x, y, z)));
+                for (var y = minHeight; y < maxHeight; y++)
+                    _blocks.Add((x, y, z), GetBlock(new Vector3(x, y, z)));
             }
         }
     }
@@ -46,21 +58,53 @@ public partial class Chunk : Node3D
         // 2. Blocks that are NOT surrounded by blocks on all sides
         // 3. Theses blocks should have only their visible faces rendered
         // We also need to make this operation asynchronous so that it won't freeze the game
-        for (var x = 0; x < 16; x++)
+        for (var x = 0; x < sideLength; x++)
         {
-            for (var z = 0; z < 16; z++)
+            for (var z = 0; z < sideLength; z++)
             {
-                for (var y = 0; y < 256; y++)
+                for (var y = minHeight; y < maxHeight; y++)
                 {
-                    _blocks.TryGetValue((x, y, z), out var block);
                     int renderMode = 0;
+
+                    _blocks.TryGetValue((x, y, z), out var block);
+
                     if (block == null)
                     {
                         return;
                     }
-                    Block.RenderBlock(block, renderMode);
+
+                    _blocks.TryGetValue((x + 1, y, z), out var eastBlock);
+                    _blocks.TryGetValue((x - 1, y, z), out var westBlock);
+                    _blocks.TryGetValue((x, y + 1, z), out var upBlock);
+                    _blocks.TryGetValue((x, y - 1, z), out var downBlock);
+                    _blocks.TryGetValue((x, y, z + 1), out var southBlock);
+                    _blocks.TryGetValue((x, y, z - 1), out var northBlock);
+
+                    if (eastBlock == null || eastBlock.Type == BlockType.Air)
+                        renderMode += (int)Block.RenderMode.East;
+                    if (westBlock == null || westBlock.Type == BlockType.Air)
+                        renderMode += (int)Block.RenderMode.West;
+                    if (upBlock == null || upBlock.Type == BlockType.Air)
+                        renderMode += (int)Block.RenderMode.Up;
+                    if (downBlock == null || downBlock.Type == BlockType.Air)
+                        renderMode += (int)Block.RenderMode.Down;
+                    if (southBlock == null || southBlock.Type == BlockType.Air)
+                        renderMode += (int)Block.RenderMode.South;
+                    if (northBlock == null || northBlock.Type == BlockType.Air)
+                        renderMode += (int)Block.RenderMode.North;
+
+                    RenderBlock(block, renderMode);
                 }
             }
         }
     }
+
+    public static BlockData GetBlock(Vector3 position)
+    {
+        var type = BlockType.Air;
+        if (position.Y < Main.WorldGenerator(position) - 64)
+            type = BlockType.Stone;
+        return new BlockData(position, type);
+    }
+
 }

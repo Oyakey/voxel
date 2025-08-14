@@ -1,28 +1,12 @@
-using Godot;
+﻿using Godot;
 
 public partial class Main : Node3D
 {
-    public static Node3D Chunk;
+    private static readonly PerlinNoise noiseGenerator = new();
 
-    private void _ready()
+    public static float WorldGenerator(Vector3 position)
     {
-        var noiseGenerator = new PerlinNoise();
-
-        Chunk = GetNode<Node3D>("Chunk");
-        for (var x = 0; x < 16; x++)
-        {
-            for (var z = 0; z < 16; z++)
-            {
-                int maxHeight = 16;
-
-                float scale = 8;
-                var noise = noiseGenerator.Noise(x / scale, z / scale);
-
-                var height = Mathf.Max(Mathf.Floor(noise * maxHeight), 1);
-
-                for (var y = 0; y < maxHeight; y++)
-                    Block.SpawnBlock(Block.GetBlock(new Vector3(x, y - maxHeight, z)));
-            }
-        }
+        int scale = 8;
+        return noiseGenerator.Noise(position.X * scale, position.Z * scale) * 32;
     }
 }

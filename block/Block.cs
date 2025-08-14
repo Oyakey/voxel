@@ -5,24 +5,17 @@ public partial class Block : StaticBody3D
     private static readonly CompressedTexture2D texture = ResourceLoader
       .Load<CompressedTexture2D>("res://resources/images/block/stone.png");
 
-    private static readonly PackedScene blockPrefab = ResourceLoader
-      .Load<PackedScene>("res://block/block.tscn");
-
-    public static Node3D RenderBlock(BlockData blockData, int renderMode = 0)
-    {
-        var block = blockPrefab.Instantiate<Node3D>();
-        block.Position = blockData.Position;
-        Main.Chunk.AddChild(block);
-        return block;
-    }
-
-    public static BlockData GetBlock(Vector3 position)
-    {
-        return new BlockData(position);
-    }
-
     private static void SetBlockTexture(MeshInstance3D mesh, CompressedTexture2D tex)
     {
+        if (mesh == null)
+        {
+            GD.Print("Mesh is null");
+            return;
+        }
+        if (mesh.GetSurfaceOverrideMaterialCount() <= 0)
+        {
+            return;
+        }
         Material surface = mesh.GetSurfaceOverrideMaterial(0);
         surface.Set("shader_parameter/block", tex);
     }

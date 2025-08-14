@@ -1,6 +1,13 @@
-using Godot;
+﻿using Godot;
 
-public class BlockData(Vector3 position)
+public class BlockData(Vector3 position, BlockType type = BlockType.Air)
 {
-    public Vector3 Position { get; set; } = position;
+    public Vector3 Position { get; } = position;
+    public BlockType Type { get; } = type;
+}
+
+public enum BlockType
+{
+    Stone,
+    Air
 }
