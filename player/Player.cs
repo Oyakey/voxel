@@ -64,11 +64,18 @@ public partial class Player : CharacterBody3D
                 }
                 _camera.Rotation += Vector3.Right * xRotation;
                 // GD.Print(_camera.RotationDegrees);
-                // if (Mathf.Abs(_camera.RotationDegrees.X + xRotation) < 90) {
-                //     _camera.RotateX(xRotation);
-                // } else {
-                //     _camera.RotationDegrees = new Vector3(0, 0, 0);
-                // }
+                if (Mathf.Abs(_camera.RotationDegrees.X + xRotation) < 90)
+                {
+                    _camera.RotateX(xRotation);
+                }
+                else
+                {
+                    _camera.RotationDegrees = new Vector3(
+                        _camera.RotationDegrees.X + xRotation >= 0 ? 90 : -90,
+                        _camera.RotationDegrees.Y,
+                        _camera.RotationDegrees.Z
+                    );
+                }
             }
         }
     }

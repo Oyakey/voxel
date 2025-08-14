@@ -8,11 +8,12 @@ public partial class Block : StaticBody3D
     private static readonly PackedScene blockPrefab = ResourceLoader
       .Load<PackedScene>("res://block/block.tscn");
 
-    public static void SpawnBlock(BlockData blockData)
+    public static Node3D RenderBlock(BlockData blockData, int renderMode = 0)
     {
         var block = blockPrefab.Instantiate<Node3D>();
         block.Position = blockData.Position;
         Main.Chunk.AddChild(block);
+        return block;
     }
 
     public static BlockData GetBlock(Vector3 position)
@@ -24,6 +25,12 @@ public partial class Block : StaticBody3D
     {
         Material surface = mesh.GetSurfaceOverrideMaterial(0);
         surface.Set("shader_parameter/block", tex);
+    }
+
+    private static void RenderFace(MeshInstance3D mesh)
+    {
+        SetBlockTexture(mesh, texture);
+        mesh.Visible = true;
     }
 
     // These meshes correspond to the faces of the block
@@ -49,21 +56,39 @@ public partial class Block : StaticBody3D
         _upMesh = GetNode<MeshInstance3D>("Up");
         _downMesh = GetNode<MeshInstance3D>("Down");
 
-        _upMesh.GetSurfaceOverrideMaterial(0).Set("shader_parameter/block", texture);
+        _northMesh.Visible = false;
+        _southMesh.Visible = false;
+        _eastMesh.Visible = false;
+        _westMesh.Visible = false;
+        _upMesh.Visible = false;
+        _downMesh.Visible = false;
+    }
 
-        SetBlockTexture(_northMesh, texture);
-        SetBlockTexture(_southMesh, texture);
-        SetBlockTexture(_eastMesh, texture);
-        SetBlockTexture(_westMesh, texture);
-        SetBlockTexture(_upMesh, texture);
-        SetBlockTexture(_downMesh, texture);
+    public void RenderFaces(int renderMode)
+    {
+        if ((renderMode & (int)RenderMode.North) != 0)
+            RenderFace(_northMesh);
+        if ((renderMode & (int)RenderMode.South) != 0)
+            RenderFace(_southMesh);
+        if ((renderMode & (int)RenderMode.East) != 0)
+            RenderFace(_eastMesh);
+        if ((renderMode & (int)RenderMode.West) != 0)
+            RenderFace(_westMesh);
+        if ((renderMode & (int)RenderMode.Up) != 0)
+            RenderFace(_upMesh);
+        if ((renderMode & (int)RenderMode.Down) != 0)
+            RenderFace(_downMesh);
+    }
 
-        // _northMesh.Visible = false;
-        // _southMesh.Visible = false;
-        // _eastMesh.Visible = false;
-        // _westMesh.Visible = false;
-        // _upMesh.Visible = false;
-        // _downMesh.Visible = false;
+    // The values are multiples of 2 so that we can use them as bit flags.
+    public enum RenderMode : int
+    {
+        North = 0b_0000_0001,
+        South = 0b_0000_0010,
+        East = 0b_0000_0100,
+        West = 0b_0000_1000,
+        Up = 0b_0001_0000,
+        Down = 0b_0010_0000
     }
 
 }

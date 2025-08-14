@@ -9,6 +9,7 @@ public partial class Chunk : Node3D
     private void _ready()
     {
         _chunkNode = GetNode<Node3D>("Chunk");
+        return;
 
         generateBlocks();
         renderBlocks();
@@ -45,5 +46,21 @@ public partial class Chunk : Node3D
         // 2. Blocks that are NOT surrounded by blocks on all sides
         // 3. Theses blocks should have only their visible faces rendered
         // We also need to make this operation asynchronous so that it won't freeze the game
+        for (var x = 0; x < 16; x++)
+        {
+            for (var z = 0; z < 16; z++)
+            {
+                for (var y = 0; y < 256; y++)
+                {
+                    _blocks.TryGetValue((x, y, z), out var block);
+                    int renderMode = 0;
+                    if (block == null)
+                    {
+                        return;
+                    }
+                    Block.RenderBlock(block, renderMode);
+                }
+            }
+        }
     }
 }
