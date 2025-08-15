@@ -2,9 +2,11 @@
 
 public partial class Player : CharacterBody3D
 {
-    private const float _speed = 10;
+    private const float _speed = 6;
     private const float _xSensitivity = 0.002f;
     private const float _ySensitivity = 0.002f;
+    private const float _jumpForce = 30;
+    private const float _gravity = 4;
     private Node3D _neck;
     private Camera3D _camera;
 
@@ -28,7 +30,7 @@ public partial class Player : CharacterBody3D
 
         var movementVector = new Vector3(
             speedDirection.X,
-            -9f,
+            Velocity.Y - _gravity,
             speedDirection.Y
         );
 
@@ -36,6 +38,11 @@ public partial class Player : CharacterBody3D
         var rotationLength = _neck.Rotation.Length();
 
         Velocity = rotationAxis == Vector3.Zero ? movementVector : movementVector.Rotated(rotationAxis, rotationLength);
+
+        if (Input.IsActionJustPressed("jump"))
+        {
+            Velocity += Vector3.Up * _jumpForce;
+        }
 
         MoveAndSlide();
     }

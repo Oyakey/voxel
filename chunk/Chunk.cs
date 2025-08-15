@@ -5,8 +5,10 @@ public partial class Chunk : Node3D
 {
     private readonly Dictionary<(int x, int y, int z), BlockData> _blocks = [];
     private const int sideLength = 16;
-    private const int minHeight = -64;
-    private const int maxHeight = 0;
+    private const int minHeight = -32;
+    private const int maxHeight = 32;
+    private long _worldSeed = 123456789;
+    private long _chunkSeed;
 
     private static readonly PackedScene blockPrefab = ResourceLoader
       .Load<PackedScene>("res://block/block.tscn");
@@ -27,6 +29,7 @@ public partial class Chunk : Node3D
     {
         generateBlocks();
         renderBlocks();
+        GenerateChunkSeed(Position.X, Position.Y);
 
         // Logic for destrying and recreating the chunk will be done later.
     }
@@ -99,12 +102,37 @@ public partial class Chunk : Node3D
         }
     }
 
-    public static BlockData GetBlock(Vector3 position)
+    public BlockData GetBlock(Vector3 position)
     {
         var type = BlockType.Air;
-        if (position.Y < Main.WorldGenerator(position) - 64)
+
+        float height = WorldGenerator(position) * 8;
+
+        if (position.Y < height)
             type = BlockType.Stone;
+
         return new BlockData(position, type);
+    }
+
+    public void GenerateChunkSeed(float x, float y)
+    {
+        _chunkSeed = _worldSeed;
+        _chunkSeed *= _chunkSeed * 6364136223846793005L + 1442695040888963407L;
+        _chunkSeed += (long)x;
+        _chunkSeed *= _chunkSeed * 6364136223846793005L + 1442695040888963407L;
+        _chunkSeed += (long)y;
+        _chunkSeed *= _chunkSeed * 6364136223846793005L + 1442695040888963407L;
+        _chunkSeed += (long)x;
+        _chunkSeed *= _chunkSeed * 6364136223846793005L + 1442695040888963407L;
+        _chunkSeed += (long)y;
+    }
+
+    private readonly PerlinNoise noiseGenerator = new();
+
+    public float WorldGenerator(Vector3 position)
+    {
+        int scale = 4;
+        return noiseGenerator.Noise(position.X / scale, position.Z / scale);
     }
 
 }

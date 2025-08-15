@@ -1,12 +1,22 @@
 shader_type spatial;
+render_mode diffuse_toon, specular_toon;
 
 uniform sampler2D block : filter_nearest, source_color;
+uniform bool showBorder = false;
 
-void vertex() {
-}
+const float borderSize = .01;
+
+// void vertex() {
+// }
 
 void fragment() {
-  ALBEDO = texture(block, UV).rgb;
+  bool isPixelInBorder = (UV.x < borderSize) || (UV.x > (1. - borderSize)) || (UV.y < borderSize) || (UV.y > (1. - borderSize));
+
+  if (showBorder && isPixelInBorder) {
+    ALBEDO = vec3(0, 0, 0);
+  } else {
+    ALBEDO = texture(block, UV).rgb;
+  }
 }
 
 //void light() {
