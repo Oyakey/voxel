@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://xxw4os14nv7l"]
+[gd_scene load_steps=8 format=3 uid="uid://xxw4os14nv7l"]
 
 [ext_resource type="Script" uid="uid://37pcrh44jucl" path="res://Main.cs" id="1_h2yge"]
 [ext_resource type="PackedScene" uid="uid://dyt6cdtojj6b2" path="res://player/player.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://nimcg24hj5mh" path="res://chunk/chunk.tscn" id="2_h2yge"]
+[ext_resource type="Texture2D" uid="uid://da68t27ltij76" path="res://resources/images/crosshair.png" id="4_1bvp3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -40,3 +41,23 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
 
 [node name="Chunk4" parent="." instance=ExtResource("2_h2yge")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 16)
+
+[node name="Control" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="Control"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="TextureRect" type="TextureRect" parent="Control/CenterContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("4_1bvp3")
+expand_mode = 2

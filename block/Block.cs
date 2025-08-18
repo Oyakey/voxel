@@ -2,14 +2,15 @@
 
 public partial class Block : StaticBody3D
 {
-    private static readonly CompressedTexture2D texture = ResourceLoader
-      .Load<CompressedTexture2D>("res://resources/images/block/stone.png");
+    private bool _hovered = false;
 
-    private static void SetBlockTexture(MeshInstance3D mesh, CompressedTexture2D tex)
+    private static readonly CompressedTexture2D texture = ResourceLoader
+      .Load<CompressedTexture2D>("res://resources/images/block/dirt.png");
+
+    private static void SetFaceTexture(MeshInstance3D mesh, CompressedTexture2D tex)
     {
         if (mesh == null)
         {
-            GD.Print("Mesh is null");
             return;
         }
         if (mesh.GetSurfaceOverrideMaterialCount() <= 0)
@@ -20,10 +21,37 @@ public partial class Block : StaticBody3D
         surface.Set("shader_parameter/block", tex);
     }
 
+    private static void SetFaceHovered(MeshInstance3D mesh, bool hovered)
+    {
+        if (mesh == null)
+        {
+            return;
+        }
+        if (mesh.GetSurfaceOverrideMaterialCount() <= 0)
+        {
+            return;
+        }
+        Material surface = mesh.GetSurfaceOverrideMaterial(0);
+        surface.Set("shader_parameter/showBorder", hovered);
+    }
+
     private static void RenderFace(MeshInstance3D mesh)
     {
-        SetBlockTexture(mesh, texture);
+        SetFaceTexture(mesh, texture);
         mesh.Visible = true;
+    }
+
+    public void SetBlockHovered(bool hovered)
+    {
+        if (_hovered == hovered)
+            return;
+        _hovered = hovered;
+        SetFaceHovered(_northMesh, hovered);
+        SetFaceHovered(_southMesh, hovered);
+        SetFaceHovered(_eastMesh, hovered);
+        SetFaceHovered(_westMesh, hovered);
+        SetFaceHovered(_upMesh, hovered);
+        SetFaceHovered(_downMesh, hovered);
     }
 
     // These meshes correspond to the faces of the block

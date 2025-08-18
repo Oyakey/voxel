@@ -6,19 +6,50 @@ public partial class Player : CharacterBody3D
     private const float _xSensitivity = 0.002f;
     private const float _ySensitivity = 0.002f;
     private const float _jumpForce = 30;
-    private const float _gravity = 4;
+    private const float _jumpGravity = 9.8f / 4;
+    private const float _gravity = 9.8f / 4;
     private Node3D _neck;
     private Camera3D _camera;
+    private RayCast3D _rayCast;
+    private Block _hoveredBlock;
 
     private void _ready()
     {
         _neck = GetNode<Node3D>("Neck");
         _camera = GetNode<Camera3D>("Neck/Camera");
+        _rayCast = GetNode<RayCast3D>("Neck/Camera/RayCast");
     }
 
     private void _process(float delta)
     {
         HandleMovement(delta);
+    }
+
+    private void _physics_process(float delta)
+    {
+        var newYVelocity = Velocity.Y - (Velocity.Y > 0 ? _jumpGravity : _gravity);
+
+        Velocity = new Vector3(
+            Velocity.X,
+            newYVelocity,
+            Velocity.Z
+        );
+
+        MoveAndSlide();
+
+        return;
+        _hoveredBlock?.SetBlockHovered(false);
+
+        if (!_rayCast.IsColliding())
+            return;
+
+        var hit = _rayCast.GetCollider();
+
+        if (hit is Block block)
+        {
+            _hoveredBlock = block;
+            _hoveredBlock.SetBlockHovered(true);
+        }
     }
 
     private void HandleMovement(float delta)
@@ -30,7 +61,7 @@ public partial class Player : CharacterBody3D
 
         var movementVector = new Vector3(
             speedDirection.X,
-            Velocity.Y - _gravity,
+Velocity.Y,
             speedDirection.Y
         );
 
@@ -41,7 +72,7 @@ public partial class Player : CharacterBody3D
 
         if (Input.IsActionJustPressed("jump"))
         {
-            Velocity += Vector3.Up * _jumpForce;
+            Velocity = Vector3.Up * _jumpForce;
         }
 
         MoveAndSlide();

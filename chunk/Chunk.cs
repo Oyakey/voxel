@@ -27,26 +27,20 @@ public partial class Chunk : Node3D
 
     private void _ready()
     {
+        Dictionary<(int x, int y, int z), BlockData> blocks = [];
+        GenerateChunkSeed(Position.X, Position.Y);
         generateBlocks();
         renderBlocks();
-        GenerateChunkSeed(Position.X, Position.Y);
 
         // Logic for destrying and recreating the chunk will be done later.
     }
 
     private void generateBlocks()
     {
-        // var noiseGenerator = new PerlinNoise();
-
         for (var x = 0; x < sideLength; x++)
         {
             for (var z = 0; z < sideLength; z++)
             {
-
-                // float scale = 8;
-                // var noise = noiseGenerator.Noise(x / scale, z / scale);
-                // var height = Mathf.Max(Mathf.Floor(noise * maxHeight), 1);
-
                 for (var y = minHeight; y < maxHeight; y++)
                     _blocks.Add((x, y, z), GetBlock(new Vector3(x, y, z)));
             }
@@ -61,6 +55,10 @@ public partial class Chunk : Node3D
         // 2. Blocks that are NOT surrounded by blocks on all sides
         // 3. Theses blocks should have only their visible faces rendered
         // We also need to make this operation asynchronous so that it won't freeze the game
+
+        // TODO: The border between chunks should also be checked to avoid rendering hidden blocks.
+        var defaultBlock = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
+
         for (var x = 0; x < sideLength; x++)
         {
             for (var z = 0; z < sideLength; z++)
@@ -73,15 +71,15 @@ public partial class Chunk : Node3D
 
                     if (block == null)
                     {
-                        return;
+                        continue;
                     }
 
-                    _blocks.TryGetValue((x + 1, y, z), out var eastBlock);
-                    _blocks.TryGetValue((x - 1, y, z), out var westBlock);
-                    _blocks.TryGetValue((x, y + 1, z), out var upBlock);
-                    _blocks.TryGetValue((x, y - 1, z), out var downBlock);
-                    _blocks.TryGetValue((x, y, z + 1), out var southBlock);
-                    _blocks.TryGetValue((x, y, z - 1), out var northBlock);
+                    BlockData eastBlock = (x == sideLength - 1) ? defaultBlock : GetBlock(x + 1, y, z);
+                    BlockData westBlock = (x == 0) ? defaultBlock : GetBlock(x - 1, y, z);
+                    BlockData upBlock = GetBlock(x, y + 1, z);
+                    BlockData downBlock = GetBlock(x, y - 1, z);
+                    BlockData southBlock = (z == sideLength - 1) ? defaultBlock : GetBlock(x, y, z + 1);
+                    BlockData northBlock = (z == 0) ? defaultBlock : GetBlock(x, y, z - 1);
 
                     if (eastBlock == null || eastBlock.Type == BlockType.Air)
                         renderMode += (int)Block.RenderMode.East;
@@ -90,7 +88,8 @@ public partial class Chunk : Node3D
                     if (upBlock == null || upBlock.Type == BlockType.Air)
                         renderMode += (int)Block.RenderMode.Up;
                     if (downBlock == null || downBlock.Type == BlockType.Air)
-                        renderMode += (int)Block.RenderMode.Down;
+                        renderMode += 0;
+                    // renderMode += (int)Block.RenderMode.Down;
                     if (southBlock == null || southBlock.Type == BlockType.Air)
                         renderMode += (int)Block.RenderMode.South;
                     if (northBlock == null || northBlock.Type == BlockType.Air)
@@ -133,6 +132,12 @@ public partial class Chunk : Node3D
     {
         int scale = 4;
         return noiseGenerator.Noise(position.X / scale, position.Z / scale);
+    }
+
+    public BlockData GetBlock(int x, int y, int z)
+    {
+        _blocks.TryGetValue((x, y, z), out var block);
+        return block;
     }
 
 }
