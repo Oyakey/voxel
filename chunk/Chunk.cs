@@ -10,8 +10,16 @@ public partial class Chunk : Node3D
     private long _worldSeed = 123456789;
     private long _chunkSeed;
 
+    private static readonly PackedScene chunkPrefab = ResourceLoader
+      .Load<PackedScene>("res://chunk/chunk.tscn");
     private static readonly PackedScene blockPrefab = ResourceLoader
       .Load<PackedScene>("res://block/block.tscn");
+
+    public static Chunk Spawn()
+    {
+        var chunk = chunkPrefab.Instantiate<Chunk>();
+        return chunk;
+    }
 
     public void RenderBlock(BlockData blockData, int renderMode = 0)
     {
@@ -22,6 +30,7 @@ public partial class Chunk : Node3D
         var block = blockPrefab.Instantiate<Block>();
         block.Position = blockData.Position;
         AddChild(block);
+        block.SetBlockData(blockData);
         block.RenderFaces(renderMode);
     }
 

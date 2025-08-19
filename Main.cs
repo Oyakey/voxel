@@ -1,10 +1,13 @@
 ﻿using Godot;
+using System.Collections.Generic;
 
 public partial class Main : Node3D
 {
     private long _baseSeed = 123456789;
     private long _worldSeed;
     private long _chunkSeed = 0;
+
+    private Dictionary<(int x, int y), Chunk> chunks = [];
 
     private static readonly PerlinNoise noiseGenerator = new();
 
@@ -22,5 +25,17 @@ public partial class Main : Node3D
         _worldSeed = _baseSeed;
         _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
         _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
+    }
+
+    public void generateChunks()
+    {
+
+    }
+
+    public void generateChunk(int x, int y)
+    {
+        var chunk = Chunk.Spawn();
+        chunk.Position = new Vector3(x * 16, 0, y * 16);
+        chunks.Add((x, y), chunk);
     }
 }

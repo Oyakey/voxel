@@ -4,8 +4,10 @@ public partial class Block : StaticBody3D
 {
     private bool _hovered = false;
 
-    private static readonly CompressedTexture2D texture = ResourceLoader
+    private static CompressedTexture2D _texture = ResourceLoader
       .Load<CompressedTexture2D>("res://resources/images/block/dirt.png");
+
+    private BlockData _blockData;
 
     private static void SetFaceTexture(MeshInstance3D mesh, CompressedTexture2D tex)
     {
@@ -37,7 +39,7 @@ public partial class Block : StaticBody3D
 
     private static void RenderFace(MeshInstance3D mesh)
     {
-        SetFaceTexture(mesh, texture);
+        SetFaceTexture(mesh, _texture);
         mesh.Visible = true;
     }
 
@@ -112,4 +114,15 @@ public partial class Block : StaticBody3D
         Down = 0b_0010_0000
     }
 
+    public CompressedTexture2D GetBlockTexture()
+    {
+        return ResourceLoader
+      .Load<CompressedTexture2D>("res://resources/images/block/dirt.png");
+
+    }
+
+    public void SetBlockData(BlockData blockData)
+    {
+        _blockData = blockData;
+    }
 }

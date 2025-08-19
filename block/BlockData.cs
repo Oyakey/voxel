@@ -9,5 +9,7 @@ public class BlockData(Vector3 position, BlockType type = BlockType.Air)
 public enum BlockType
 {
     Stone,
-    Air
+    Air,
+    Dirt,
+    Water,
 }
