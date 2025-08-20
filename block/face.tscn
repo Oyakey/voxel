@@ -1,12 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://b1jqfbj67cwhx"]
+[gd_scene load_steps=5 format=3 uid="uid://b1jqfbj67cwhx"]
 
 [ext_resource type="Shader" uid="uid://dksc0mpy6qyay" path="res://main.gdshader" id="1_85taf"]
+[ext_resource type="Texture2D" uid="uid://durqaibgtgjne" path="res://resources/images/block/stone.png" id="2_d8tsl"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_07jjg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_85taf"]
+resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("1_85taf")
+shader_parameter/block = ExtResource("2_d8tsl")
 shader_parameter/showBorder = false
 
 [node name="Face" type="MeshInstance3D"]

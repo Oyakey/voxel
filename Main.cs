@@ -7,7 +7,7 @@ public partial class Main : Node3D
     private long _worldSeed;
     private long _chunkSeed = 0;
 
-    private Dictionary<(int x, int y), Chunk> chunks = [];
+    public static readonly Dictionary<(int x, int y), Chunk> chunks = [];
 
     private static readonly PerlinNoise noiseGenerator = new();
 
@@ -27,15 +27,28 @@ public partial class Main : Node3D
         _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
     }
 
+    private void _ready()
+    {
+        generateChunks();
+    }
     public void generateChunks()
     {
+        for (int x = 0; x < 2; x++)
+        {
+            for (int y = 0; y < 2; y++)
+            {
+                var chunk = generateChunk(x, y);
+                AddChild(chunk);
+            }
+        }
 
     }
 
-    public void generateChunk(int x, int y)
+    public static Chunk generateChunk(int x, int y)
     {
         var chunk = Chunk.Spawn();
         chunk.Position = new Vector3(x * 16, 0, y * 16);
         chunks.Add((x, y), chunk);
+        return chunk;
     }
 }

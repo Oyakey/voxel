@@ -1,75 +1,55 @@
-[gd_scene load_steps=12 format=3 uid="uid://dj0feotq8evgv"]
+[gd_scene load_steps=13 format=3 uid="uid://dj0feotq8evgv"]
 
 [ext_resource type="Script" uid="uid://dyp0o8n8omr5" path="res://block/Block.cs" id="1_07jjg"]
 [ext_resource type="PackedScene" uid="uid://b1jqfbj67cwhx" path="res://block/face.tscn" id="2_p2cip"]
+[ext_resource type="Shader" uid="uid://dksc0mpy6qyay" path="res://main.gdshader" id="3_sj7r8"]
+[ext_resource type="Texture2D" uid="uid://durqaibgtgjne" path="res://resources/images/block/stone.png" id="4_o2knv"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_07jjg"]
 friction = 0.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_h2yge"]
 
-[sub_resource type="Shader" id="Shader_sx86i"]
-code = "shader_type spatial;
-render_mode diffuse_toon, specular_toon;
-
-uniform sampler2D block : filter_nearest, source_color;
-uniform bool showBorder = false;
-
-const float borderSize = .01;
-
-// void vertex() {
-// }
-
-void fragment() {
-  bool isPixelInBorder = (UV.x < borderSize) || (UV.x > (1. - borderSize)) || (UV.y < borderSize) || (UV.y > (1. - borderSize));
-
-  if (showBorder && isPixelInBorder) {
-    ALBEDO = vec3(0, 0, 0);
-  } else {
-    ALBEDO = texture(block, UV).rgb;
-  }
-}
-
-//void light() {
-//	// Called for every pixel for every light affecting the material.
-//	// Uncomment to replace the default light processing function with this one.
-//}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_p2cip"]
-resource_local_to_scene = true
-render_priority = 0
-shader = SubResource("Shader_sx86i")
-shader_parameter/showBorder = false
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_07jjg"]
-resource_local_to_scene = true
-render_priority = 0
-shader = SubResource("Shader_sx86i")
-shader_parameter/showBorder = false
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sj7r8"]
-resource_local_to_scene = true
-render_priority = 0
-shader = SubResource("Shader_sx86i")
-shader_parameter/showBorder = false
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_o2knv"]
-resource_local_to_scene = true
-render_priority = 0
-shader = SubResource("Shader_sx86i")
-shader_parameter/showBorder = false
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7vp4c"]
 resource_local_to_scene = true
 render_priority = 0
-shader = SubResource("Shader_sx86i")
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
 shader_parameter/showBorder = false
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mqn8r"]
 resource_local_to_scene = true
 render_priority = 0
-shader = SubResource("Shader_sx86i")
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oahdx"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_71pok"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5anq1"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qgc0h"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
 shader_parameter/showBorder = false
 
 [node name="Block" type="StaticBody3D"]
@@ -82,28 +62,28 @@ shape = SubResource("BoxShape3D_h2yge")
 [node name="North" parent="." instance=ExtResource("2_p2cip")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -0.5)
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("ShaderMaterial_p2cip")
+surface_material_override/0 = SubResource("ShaderMaterial_7vp4c")
 
 [node name="South" parent="." instance=ExtResource("2_p2cip")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("ShaderMaterial_07jjg")
+surface_material_override/0 = SubResource("ShaderMaterial_mqn8r")
 
 [node name="East" parent="." instance=ExtResource("2_p2cip")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.5, 0, 0)
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("ShaderMaterial_sj7r8")
+surface_material_override/0 = SubResource("ShaderMaterial_oahdx")
 
 [node name="West" parent="." instance=ExtResource("2_p2cip")]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.5, 0, 0)
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("ShaderMaterial_o2knv")
+surface_material_override/0 = SubResource("ShaderMaterial_71pok")
 
 [node name="Up" parent="." instance=ExtResource("2_p2cip")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.5, 0)
 skeleton = NodePath("")
-surface_material_override/0 = SubResource("ShaderMaterial_7vp4c")
+surface_material_override/0 = SubResource("ShaderMaterial_5anq1")
 
 [node name="Down" parent="." instance=ExtResource("2_p2cip")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.5, 0)
-surface_material_override/0 = SubResource("ShaderMaterial_mqn8r")
+surface_material_override/0 = SubResource("ShaderMaterial_qgc0h")

@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://xxw4os14nv7l"]
+[gd_scene load_steps=7 format=3 uid="uid://xxw4os14nv7l"]
 
 [ext_resource type="Script" uid="uid://37pcrh44jucl" path="res://Main.cs" id="1_h2yge"]
 [ext_resource type="PackedScene" uid="uid://dyt6cdtojj6b2" path="res://player/player.tscn" id="1_ig7tw"]
-[ext_resource type="PackedScene" uid="uid://nimcg24hj5mh" path="res://chunk/chunk.tscn" id="2_h2yge"]
 [ext_resource type="Texture2D" uid="uid://da68t27ltij76" path="res://resources/images/crosshair.png" id="4_1bvp3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
@@ -30,17 +29,6 @@ shadow_enabled = true
 
 [node name="Player" parent="." instance=ExtResource("1_ig7tw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.30148, 0.555963, 4.96079)
-
-[node name="Chunk" parent="." instance=ExtResource("2_h2yge")]
-
-[node name="Chunk2" parent="." instance=ExtResource("2_h2yge")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
-
-[node name="Chunk3" parent="." instance=ExtResource("2_h2yge")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
-
-[node name="Chunk4" parent="." instance=ExtResource("2_h2yge")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 16)
 
 [node name="Control" type="Control" parent="."]
 visible = false

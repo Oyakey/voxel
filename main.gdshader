@@ -6,20 +6,16 @@ uniform bool showBorder = false;
 
 const float borderSize = .01;
 
-// void vertex() {
-// }
-
 void fragment() {
-  bool isPixelInBorder = (UV.x < borderSize) || (UV.x > (1. - borderSize)) || (UV.y < borderSize) || (UV.y > (1. - borderSize));
+  bool isPixelInBorderX = UV.x < borderSize || (UV.x > (1. - borderSize));
+  bool isPixelInBorderY = UV.y < borderSize || (UV.y > (1. - borderSize));
+  bool isPixelInBorder = isPixelInBorderX || isPixelInBorderY;
+
+  vec3 blockTexture = texture(block, UV).rgb;
 
   if (showBorder && isPixelInBorder) {
-    ALBEDO = vec3(0, 0, 0);
+    ALBEDO = .01 + blockTexture * .1;
   } else {
-    ALBEDO = texture(block, UV).rgb;
+    ALBEDO = blockTexture;
   }
 }
-
-//void light() {
-//	// Called for every pixel for every light affecting the material.
-//	// Uncomment to replace the default light processing function with this one.
-//}

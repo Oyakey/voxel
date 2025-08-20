@@ -5,9 +5,9 @@ public partial class Player : CharacterBody3D
     private const float _speed = 6;
     private const float _xSensitivity = 0.002f;
     private const float _ySensitivity = 0.002f;
-    private const float _jumpForce = 30;
-    private const float _jumpGravity = 9.8f / 4;
-    private const float _gravity = 9.8f / 4;
+    private const float _jumpForce = 5;
+    private const float _jumpGravity = 9.8f * 2;
+    private const float _gravity = 9.8f * 2;
     private Node3D _neck;
     private Camera3D _camera;
     private RayCast3D _rayCast;
@@ -27,7 +27,7 @@ public partial class Player : CharacterBody3D
 
     private void _physics_process(float delta)
     {
-        var newYVelocity = Velocity.Y - (Velocity.Y > 0 ? _jumpGravity : _gravity);
+        var newYVelocity = Velocity.Y - (Velocity.Y > 0 ? _jumpGravity : _gravity) * delta;
 
         Velocity = new Vector3(
             Velocity.X,
@@ -37,7 +37,6 @@ public partial class Player : CharacterBody3D
 
         MoveAndSlide();
 
-        return;
         _hoveredBlock?.SetBlockHovered(false);
 
         if (!_rayCast.IsColliding())

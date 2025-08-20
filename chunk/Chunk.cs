@@ -51,7 +51,7 @@ public partial class Chunk : Node3D
             for (var z = 0; z < sideLength; z++)
             {
                 for (var y = minHeight; y < maxHeight; y++)
-                    _blocks.Add((x, y, z), GetBlock(new Vector3(x, y, z)));
+                    _blocks.Add((x, y, z), GetBlockData(new Vector3(x, y, z)));
             }
         }
     }
@@ -110,7 +110,7 @@ public partial class Chunk : Node3D
         }
     }
 
-    public BlockData GetBlock(Vector3 position)
+    public BlockData GetBlockData(Vector3 position)
     {
         var type = BlockType.Air;
 
@@ -145,8 +145,26 @@ public partial class Chunk : Node3D
 
     public BlockData GetBlock(int x, int y, int z)
     {
-        _blocks.TryGetValue((x, y, z), out var block);
-        return block;
+        if (x >= 0 && x < sideLength && y >= 0 && y < sideLength && z >= 0 && z < sideLength)
+        {
+            _blocks.TryGetValue((x, y, z), out var block);
+            return block;
+        }
+
+        return null;
+
+        int blockWorldCoordX = (int)Position.X + x;
+        int blockWorldCoordY = (int)Position.Y + y;
+
+        return TryGetBlock(blockWorldCoordX, blockWorldCoordY, z);
+    }
+
+    public static BlockData TryGetBlock(int x, int y, int z)
+    {
+        Main.chunks.TryGetValue((x - x % sideLength, y - y % sideLength), out var chunk);
+        if (chunk == null)
+            return null;
+        return chunk.GetBlock(x % sideLength, y % sideLength, z);
     }
 
 }
