@@ -1,5 +1,7 @@
 ﻿using Godot;
-using System.Collections.Generic;
+using Voxel.Chunk;
+
+namespace Voxel;
 
 public partial class Main : Node3D
 {
@@ -7,9 +9,11 @@ public partial class Main : Node3D
     private long _worldSeed;
     private long _chunkSeed = 0;
 
-    public static readonly Dictionary<(int x, int y), Chunk> chunks = [];
+    private static ChunkGenerator _chunkGenerator;
 
     private static readonly PerlinNoise noiseGenerator = new();
+
+    public static ChunkGenerator ChunkGenerator => _chunkGenerator;
 
     public static float WorldGenerator(Vector3 position)
     {
@@ -29,26 +33,10 @@ public partial class Main : Node3D
 
     private void _ready()
     {
-        generateChunks();
-    }
-    public void generateChunks()
-    {
-        for (int x = 0; x < 2; x++)
-        {
-            for (int y = 0; y < 2; y++)
-            {
-                var chunk = generateChunk(x, y);
-                AddChild(chunk);
-            }
-        }
-
-    }
-
-    public static Chunk generateChunk(int x, int y)
-    {
-        var chunk = Chunk.Spawn();
-        chunk.Position = new Vector3(x * 16, 0, y * 16);
-        chunks.Add((x, y), chunk);
-        return chunk;
+        _chunkGenerator = new ChunkGenerator(GetNode<Node3D>("Chunks"));
+        var chunk = ChunkGenerator.RenderChunk(new ChunkCoords(0, 0));
+        if (chunk == null)
+            return;
+        AddChild(chunk);
     }
 }

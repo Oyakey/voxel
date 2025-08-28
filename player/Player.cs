@@ -1,4 +1,7 @@
 ﻿using Godot;
+using Voxel.Chunk;
+
+namespace Voxel;
 
 public partial class Player : CharacterBody3D
 {
@@ -23,6 +26,16 @@ public partial class Player : CharacterBody3D
     private void _process(float delta)
     {
         HandleMovement(delta);
+        HandleLoadChunk();
+    }
+
+    private void HandleLoadChunk()
+    {
+        ChunkData chunkData = Main.ChunkGenerator.GetChunkByPosition(Position);
+        if (chunkData == null)
+            return;
+
+        Main.ChunkGenerator.RenderChunksAround(chunkData.Coords);
     }
 
     private void _physics_process(float delta)

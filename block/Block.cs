@@ -1,10 +1,12 @@
 ﻿using Godot;
 
+namespace Voxel;
+
 public partial class Block : StaticBody3D
 {
     private bool _hovered = false;
 
-    private static CompressedTexture2D _texture = ResourceLoader
+    private static readonly CompressedTexture2D _texture = ResourceLoader
       .Load<CompressedTexture2D>("res://resources/images/block/dirt.png");
 
     private BlockData _blockData;
