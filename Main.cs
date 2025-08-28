@@ -15,6 +15,8 @@ public partial class Main : Node3D
 
     public static ChunkGenerator ChunkGenerator => _chunkGenerator;
 
+    public static ChunkCoords PlayerCurrentChunk { get; set; }
+
     public static float WorldGenerator(Vector3 position)
     {
         int scale = 4;
@@ -34,9 +36,6 @@ public partial class Main : Node3D
     private void _ready()
     {
         _chunkGenerator = new ChunkGenerator(GetNode<Node3D>("Chunks"));
-        var chunk = ChunkGenerator.RenderChunk(new ChunkCoords(0, 0));
-        if (chunk == null)
-            return;
-        AddChild(chunk);
+        ChunkGenerator.RenderChunk(new ChunkCoords(0, 0));
     }
 }

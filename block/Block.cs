@@ -7,7 +7,7 @@ public partial class Block : StaticBody3D
     private bool _hovered = false;
 
     private static readonly CompressedTexture2D _texture = ResourceLoader
-      .Load<CompressedTexture2D>("res://resources/images/block/dirt.png");
+      .Load<CompressedTexture2D>("res://resources/images/block/stone.png");
 
     private BlockData _blockData;
 
@@ -28,13 +28,11 @@ public partial class Block : StaticBody3D
     private static void SetFaceHovered(MeshInstance3D mesh, bool hovered)
     {
         if (mesh == null)
-        {
             return;
-        }
+
         if (mesh.GetSurfaceOverrideMaterialCount() <= 0)
-        {
             return;
-        }
+
         Material surface = mesh.GetSurfaceOverrideMaterial(0);
         surface.Set("shader_parameter/showBorder", hovered);
     }

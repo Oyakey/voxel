@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace Voxel.Chunk;
@@ -23,10 +24,10 @@ public class ChunkGenerator(Node3D chunkParent)
         _chunks.Add(chunkCoords, chunk);
     }
 
-    public Chunk RenderChunk(ChunkCoords chunkCoords)
+    public void RenderChunk(ChunkCoords chunkCoords)
     {
         if (_renderedChunks.ContainsKey(chunkCoords))
-            return null;
+            return;
 
         // Generate all neighboring chunks before rendering.
         for (var x = -1; x <= 1; x++)
@@ -43,8 +44,7 @@ public class ChunkGenerator(Node3D chunkParent)
 
         _renderedChunks.Add(chunkCoords, chunk);
 
-        // _chunkParent.AddChild(chunk);
-        return chunk;
+        _chunkParent.AddChild(chunk);
     }
 
     public void RemoveChunk(ChunkCoords chunkCoords)
@@ -56,27 +56,22 @@ public class ChunkGenerator(Node3D chunkParent)
         _renderedChunks.Remove(chunkCoords);
     }
 
-    public void PrintChunks()
+    public static ChunkCoords GetChunkCoordsByPosition(Vector3 position)
     {
-        foreach (var chunk in _chunks)
-        {
-            GD.Print(chunk.Key);
-        }
+        return new ChunkCoords(
+           Mathf.FloorToInt(position.X / Chunk.SIDE_LENGTH),
+           Mathf.FloorToInt(position.Z / Chunk.SIDE_LENGTH)
+       );
     }
 
     public ChunkData GetChunkByPosition(Vector3 position)
     {
-        var chunkCoords = new ChunkCoords(
-            Mathf.FloorToInt(position.X / Chunk.SIDE_LENGTH),
-            Mathf.FloorToInt(position.Z / Chunk.SIDE_LENGTH)
-        );
+        var chunkCoords = GetChunkCoordsByPosition(position);
         return GetChunk(chunkCoords);
     }
 
     public void RenderChunksAround(ChunkCoords chunkCoords)
     {
-        // RenderChunk(chunkCoords);
-        return;
         for (var x = -1; x <= 1; x++)
         {
             for (var y = -1; y <= 1; y++)

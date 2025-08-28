@@ -31,7 +31,9 @@ public partial class Player : CharacterBody3D
 
     private void HandleLoadChunk()
     {
-        ChunkData chunkData = Main.ChunkGenerator.GetChunkByPosition(Position);
+        var chunkCoords = ChunkGenerator.GetChunkCoordsByPosition(Position);
+        Main.PlayerCurrentChunk = chunkCoords;
+        ChunkData chunkData = Main.ChunkGenerator.GetChunk(chunkCoords);
         if (chunkData == null)
             return;
 

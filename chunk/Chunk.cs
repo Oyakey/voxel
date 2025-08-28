@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿using System;
+using Godot;
 
 namespace Voxel.Chunk;
 
@@ -47,6 +48,19 @@ public partial class Chunk : Node3D
         renderBlocks();
 
         // Logic for destrying and recreating the chunk will be done later.
+    }
+
+    public void _process(float _)
+    {
+        var chunkCoords = Main.PlayerCurrentChunk;
+
+        var distanceXFromPlayer = Math.Abs(_chunkData.Coords.X - chunkCoords.X);
+        var distanceYFromPlayer = Math.Abs(_chunkData.Coords.Y - chunkCoords.Y);
+
+        if (distanceXFromPlayer > 1 || distanceYFromPlayer > 1)
+        {
+            Main.ChunkGenerator.RemoveChunk(_chunkData.Coords);
+        }
     }
 
     private void renderBlocks()
@@ -110,7 +124,7 @@ public partial class Chunk : Node3D
         if (blockData == null)
             return true;
 
-        return blockData != null && blockData.Type != BlockType.Air || blockData.Position.Y > MIN_HEIGHT;
+        return blockData != null && blockData.Type != BlockType.Air;
     }
 
     public void GenerateChunkSeed(float x, float y)

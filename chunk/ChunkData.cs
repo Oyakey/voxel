@@ -35,6 +35,7 @@ public class ChunkData
             blockCoords.Y,
             Math.Mod(blockCoords.Z, Chunk.SIDE_LENGTH)
         );
+
         return chunk.GetLocalBlock(localBlockCoords);
     }
 
