@@ -1,0 +1,89 @@
+[gd_scene load_steps=13 format=3 uid="uid://dj0feotq8evgv"]
+
+[ext_resource type="Script" uid="uid://dyp0o8n8omr5" path="res://block/Block.cs" id="1_07jjg"]
+[ext_resource type="PackedScene" uid="uid://b1jqfbj67cwhx" path="res://block/face.tscn" id="2_p2cip"]
+[ext_resource type="Shader" uid="uid://dksc0mpy6qyay" path="res://main.gdshader" id="3_sj7r8"]
+[ext_resource type="Texture2D" uid="uid://durqaibgtgjne" path="res://resources/images/block/stone.png" id="4_o2knv"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_07jjg"]
+friction = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h2yge"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7vp4c"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mqn8r"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oahdx"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_71pok"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5anq1"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qgc0h"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("3_sj7r8")
+shader_parameter/block = ExtResource("4_o2knv")
+shader_parameter/showBorder = false
+
+[node name="Block" type="StaticBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_07jjg")
+script = ExtResource("1_07jjg")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_h2yge")
+
+[node name="North" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -0.5)
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_7vp4c")
+
+[node name="South" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_mqn8r")
+
+[node name="East" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.5, 0, 0)
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_oahdx")
+
+[node name="West" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.5, 0, 0)
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_71pok")
+
+[node name="Up" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.5, 0)
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("ShaderMaterial_5anq1")
+
+[node name="Down" parent="." instance=ExtResource("2_p2cip")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.5, 0)
+surface_material_override/0 = SubResource("ShaderMaterial_qgc0h")
