@@ -1,46 +1,153 @@
 ﻿using Godot;
-using Voxel.Chunk;
+using Voxel.World;
+using Voxel.Inputs;
 
 namespace Voxel;
 
 public partial class Player : CharacterBody3D
 {
-    private const float _speed = 6;
+    private const float _speed = 4;
+    private const float _flySpeed = 10;
     private const float _xSensitivity = 0.002f;
     private const float _ySensitivity = 0.002f;
-    private const float _jumpForce = 5;
+    private readonly float _jumpForce = Mathf.Sqrt(9.8f * 2);
     private const float _jumpGravity = 9.8f * 2;
-    private const float _gravity = 9.8f * 2;
+    private const float _gravity = 9.8f * 3;
     private Node3D _neck;
     private Camera3D _camera;
     private RayCast3D _rayCast;
-    private Block _hoveredBlock;
+    private Vector3I _hoveredBlock;
+    private bool _isFlying = true;
+    private readonly DoubleTap _jumpDoubleTap = new("jump", 0.2f);
 
     private void _ready()
     {
         _neck = GetNode<Node3D>("Neck");
         _camera = GetNode<Camera3D>("Neck/Camera");
         _rayCast = GetNode<RayCast3D>("Neck/Camera/RayCast");
+        Main.Player = this;
     }
 
     private void _process(float delta)
     {
         HandleMovement(delta);
         HandleLoadChunk();
+        _jumpDoubleTap.UpdateDoubleTap();
+        HandleDoubleJump();
+        HandleBreakingBlock();
+        HandlePlaceBlock();
     }
 
+    private const float _attackCooldown = 0.5f;
+    private float _lastAttackTime = 0;
+    private void HandleBreakingBlock()
+    {
+        if (
+            !Input.IsActionPressed("attack") ||
+            !_rayCast.IsColliding() ||
+            Time.GetTicksMsec() - _lastAttackTime < (_attackCooldown * 1000)
+        )
+        {
+            return;
+        }
+        _lastAttackTime = Time.GetTicksMsec();
+        if (_rayCast.GetCollider() is StaticBody3D body)
+        {
+            if (body.GetParent() is Chunk chunk)
+            {
+                var hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+                chunk.BreakBlock(new BlockCoords(hoveredBlock.X, hoveredBlock.Y, hoveredBlock.Z));
+            }
+        }
+    }
+
+    private const float _placeCooldown = 0.2f;
+    private float _lastPlaceTime = 0;
+    private void HandlePlaceBlock()
+    {
+        if (
+            !Input.IsActionPressed("interact") ||
+            !_rayCast.IsColliding() ||
+            Time.GetTicksMsec() - _lastPlaceTime < (_placeCooldown * 1000)
+        )
+        {
+            return;
+        }
+        _lastPlaceTime = Time.GetTicksMsec();
+        if (_rayCast.GetCollider() is StaticBody3D body)
+        {
+            if (body.GetParent() is Chunk chunk)
+            {
+                var hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+                Vector3I newBlockCoords = hoveredBlock + (Vector3I)_rayCast.GetCollisionNormal();
+                chunk.PlaceBlock(new BlockCoords(newBlockCoords.X, newBlockCoords.Y, newBlockCoords.Z));
+            }
+        }
+    }
+
+    private void HandleDoubleJump()
+    {
+        if (!_jumpDoubleTap.IsDoubleTapped)
+        {
+            return;
+        }
+        _isFlying = !_isFlying;
+    }
+
+    private bool _worldInitiallyRendered = false;
     private void HandleLoadChunk()
     {
         var chunkCoords = ChunkGenerator.GetChunkCoordsByPosition(Position);
-        Main.PlayerCurrentChunk = chunkCoords;
-        ChunkData chunkData = Main.ChunkGenerator.GetChunk(chunkCoords);
-        if (chunkData == null)
+        if (
+            _worldInitiallyRendered &&
+            Main.PlayerCurrentChunk.X == chunkCoords.X &&
+            Main.PlayerCurrentChunk.Z == chunkCoords.Z
+        )
+        {
             return;
-
-        Main.ChunkGenerator.RenderChunksAround(chunkData.Coords);
+        }
+        _worldInitiallyRendered = true;
+        Main.PlayerCurrentChunk = chunkCoords;
+        Main.ChunkGenerator.RenderChunksAround(chunkCoords);
     }
 
     private void _physics_process(float delta)
+    {
+        if (!_isFlying)
+            HandleGravity(delta);
+
+        HandleHoveringBlock();
+    }
+
+    private static void HandleHoveringBlock()
+    {
+        // if (!_rayCast.IsColliding())
+        //     return;
+        //
+        // _hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+    }
+
+    public static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
+    {
+        // There are three things to consider for the hit to block coords conversion:
+        // 1. The raycast can sometime hit inside a block, but the point SHOULD be near the hovered face.
+        // This is why we need to round the hit position for the axis of the normal.
+        //
+        // 2. A face can be at a different point of the grid than the block it is from. 
+        // A hit from above at (0, 1, 0) should resolve to the block at (0, 0, 0), 
+        // since it is the top face of this block that is at (0, 1, 0). It will happen everytime
+        // the hit face normal is > 0 (for X, Y and Z axis).
+        //
+        // 3. This method can't be used to resolve coordinates for a "block" smaller than 1 unit.
+        // Like doors in minecraft for example which are like .2 unit thick.
+        return new Vector3I(
+            normal.X == 0 ? Mathf.FloorToInt(hit.X) : Mathf.RoundToInt(normal.X < 0 ? hit.X : hit.X - 1),
+            normal.Y == 0 ? Mathf.FloorToInt(hit.Y) : Mathf.RoundToInt(normal.Y < 0 ? hit.Y : hit.Y - 1),
+            normal.Z == 0 ? Mathf.FloorToInt(hit.Z) : Mathf.RoundToInt(normal.Z < 0 ? hit.Z : hit.Z - 1)
+        );
+    }
+
+    private void HandleGravity(float delta)
     {
         var newYVelocity = Velocity.Y - (Velocity.Y > 0 ? _jumpGravity : _gravity) * delta;
 
@@ -51,19 +158,6 @@ public partial class Player : CharacterBody3D
         );
 
         MoveAndSlide();
-
-        _hoveredBlock?.SetBlockHovered(false);
-
-        if (!_rayCast.IsColliding())
-            return;
-
-        var hit = _rayCast.GetCollider();
-
-        if (hit is Block block)
-        {
-            _hoveredBlock = block;
-            _hoveredBlock.SetBlockHovered(true);
-        }
     }
 
     private void HandleMovement(float delta)
@@ -71,23 +165,35 @@ public partial class Player : CharacterBody3D
         var direction = Input.GetVector("left", "right", "forward", "back");
         direction = direction.Normalized();
 
-        var speedDirection = direction * _speed;
+        var speedDirection = direction * (_isFlying ? _flySpeed : _speed);
 
         var movementVector = new Vector3(
             speedDirection.X,
-Velocity.Y,
+            Velocity.Y,
             speedDirection.Y
         );
 
+        if (Input.IsActionJustPressed("jump") && !_isFlying)
+        {
+            movementVector = Vector3.Up * _jumpForce;
+        }
+
+        if (_isFlying)
+        {
+            movementVector.Y = 0;
+            if (Input.IsActionPressed("jump"))
+            {
+                movementVector.Y = _speed;
+            }
+            if (Input.IsActionPressed("crouch"))
+            {
+                movementVector.Y = -_speed;
+            }
+        }
+
         var rotationAxis = _neck.Rotation.Normalized();
         var rotationLength = _neck.Rotation.Length();
-
         Velocity = rotationAxis == Vector3.Zero ? movementVector : movementVector.Rotated(rotationAxis, rotationLength);
-
-        if (Input.IsActionJustPressed("jump"))
-        {
-            Velocity = Vector3.Up * _jumpForce;
-        }
 
         MoveAndSlide();
     }
