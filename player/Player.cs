@@ -15,6 +15,7 @@ public partial class Player : CharacterBody3D
     private Camera3D _camera;
     private RayCast3D _rayCast;
     private Block _hoveredBlock;
+    private bool _isFlying = true;
 
     private void _ready()
     {
@@ -42,16 +43,14 @@ public partial class Player : CharacterBody3D
 
     private void _physics_process(float delta)
     {
-        var newYVelocity = Velocity.Y - (Velocity.Y > 0 ? _jumpGravity : _gravity) * delta;
+        if (!_isFlying)
+            HandleGravity(delta);
 
-        Velocity = new Vector3(
-            Velocity.X,
-            newYVelocity,
-            Velocity.Z
-        );
+        // HandleHoveringBlock();
+    }
 
-        MoveAndSlide();
-
+    private void HandleHoveringBlock()
+    {
         _hoveredBlock?.SetBlockHovered(false);
 
         if (!_rayCast.IsColliding())
@@ -66,6 +65,19 @@ public partial class Player : CharacterBody3D
         }
     }
 
+    private void HandleGravity(float delta)
+    {
+        var newYVelocity = Velocity.Y - (Velocity.Y > 0 ? _jumpGravity : _gravity) * delta;
+
+        Velocity = new Vector3(
+            Velocity.X,
+            newYVelocity,
+            Velocity.Z
+        );
+
+        MoveAndSlide();
+    }
+
     private void HandleMovement(float delta)
     {
         var direction = Input.GetVector("left", "right", "forward", "back");
@@ -75,19 +87,30 @@ public partial class Player : CharacterBody3D
 
         var movementVector = new Vector3(
             speedDirection.X,
-Velocity.Y,
+            Velocity.Y,
             speedDirection.Y
         );
 
-        var rotationAxis = _neck.Rotation.Normalized();
-        var rotationLength = _neck.Rotation.Length();
-
-        Velocity = rotationAxis == Vector3.Zero ? movementVector : movementVector.Rotated(rotationAxis, rotationLength);
-
-        if (Input.IsActionJustPressed("jump"))
+        if (Input.IsActionJustPressed("jump") && !_isFlying)
         {
             Velocity = Vector3.Up * _jumpForce;
         }
+        if (_isFlying)
+        {
+            movementVector.Y = 0;
+            if (Input.IsActionPressed("jump"))
+            {
+                movementVector.Y = _speed;
+            }
+            if (Input.IsActionPressed("crouch"))
+            {
+                movementVector.Y = -_speed;
+            }
+        }
+
+        var rotationAxis = _neck.Rotation.Normalized();
+        var rotationLength = _neck.Rotation.Length();
+        Velocity = rotationAxis == Vector3.Zero ? movementVector : movementVector.Rotated(rotationAxis, rotationLength);
 
         MoveAndSlide();
     }
