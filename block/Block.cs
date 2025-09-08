@@ -4,12 +4,45 @@ namespace Voxel;
 
 public partial class Block : StaticBody3D
 {
-    private bool _hovered = false;
-
     private static readonly CompressedTexture2D _texture = ResourceLoader
       .Load<CompressedTexture2D>("res://resources/images/block/stone.png");
 
+    private static readonly PackedScene blockPrefab = ResourceLoader
+      .Load<PackedScene>("res://block/block.tscn");
+
+    public int BlockRenderMode { get; set; }
+
+    private bool _hovered = false;
+
     private BlockData _blockData;
+
+    // These meshes correspond to the faces of the block
+    // North is the face facing z-
+    private MeshInstance3D _northMesh;
+    // South is the face facing z+
+    private MeshInstance3D _southMesh;
+    // East is the face facing x+
+    private MeshInstance3D _eastMesh;
+    // West is the face facing x-
+    private MeshInstance3D _westMesh;
+    // Up is the face facing y+
+    private MeshInstance3D _upMesh;
+    // Down is the face facing y-
+    private MeshInstance3D _downMesh;
+
+    public static void Spawn(Node3D node, BlockData blockData, int renderMode)
+    {
+        if (renderMode == 0)
+            return;
+        if (blockData.Type == BlockType.Air)
+            return;
+        var block = blockPrefab.Instantiate<Block>();
+        block.Position = blockData.Position;
+        block.SetBlockData(blockData);
+        block.BlockRenderMode = renderMode;
+        // node.AddChild(block);
+        node.CallDeferred("add_child", block);
+    }
 
     private static void SetFaceTexture(MeshInstance3D mesh, CompressedTexture2D tex)
     {
@@ -56,20 +89,6 @@ public partial class Block : StaticBody3D
         SetFaceHovered(_downMesh, hovered);
     }
 
-    // These meshes correspond to the faces of the block
-    // North is the face facing z-
-    private MeshInstance3D _northMesh;
-    // South is the face facing z+
-    private MeshInstance3D _southMesh;
-    // East is the face facing x+
-    private MeshInstance3D _eastMesh;
-    // West is the face facing x-
-    private MeshInstance3D _westMesh;
-    // Up is the face facing y+
-    private MeshInstance3D _upMesh;
-    // Down is the face facing y-
-    private MeshInstance3D _downMesh;
-
     private void _ready()
     {
         _northMesh = GetNode<MeshInstance3D>("North");
@@ -85,6 +104,8 @@ public partial class Block : StaticBody3D
         _westMesh.Visible = false;
         _upMesh.Visible = false;
         _downMesh.Visible = false;
+
+        RenderFaces(BlockRenderMode);
     }
 
     public void RenderFaces(int renderMode)
