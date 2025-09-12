@@ -15,28 +15,34 @@ public class ChunkData
     public ChunkData(ChunkCoords coords)
     {
         Coords = coords;
-        GenerateBlocks();
+        // GenerateBlocks();
     }
 
     public BlockData GetBlock(BlockCoords blockCoords)
     {
         var blockWorldCoords = LocalToWorld(blockCoords);
 
-        var chunkCoords = new ChunkCoords(
-            Mathf.FloorToInt(blockWorldCoords.X / Chunk.SIDE_LENGTH),
-            Mathf.FloorToInt(blockWorldCoords.Z / Chunk.SIDE_LENGTH)
-        );
-        var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
-        if (chunk == null)
-            return null;
+        // TODO: This is a temporary implementation to test the rendering of the chunks.
+        var height = Utils.Math.Mod(blockWorldCoords.X + blockWorldCoords.Z, 10) - 5;
+        var stone = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
+        var air = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
+        return blockCoords.Y < height ? stone : air;
 
-        var localBlockCoords = new BlockCoords(
-            Math.Mod(blockCoords.X, Chunk.SIDE_LENGTH),
-            blockCoords.Y,
-            Math.Mod(blockCoords.Z, Chunk.SIDE_LENGTH)
-        );
-
-        return chunk.GetLocalBlock(localBlockCoords);
+        // var chunkCoords = new ChunkCoords(
+        //     Mathf.FloorToInt(blockWorldCoords.X / Chunk.SIDE_LENGTH),
+        //     Mathf.FloorToInt(blockWorldCoords.Z / Chunk.SIDE_LENGTH)
+        // );
+        // var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
+        // if (chunk == null)
+        //     return null;
+        //
+        // var localBlockCoords = new BlockCoords(
+        //     Math.Mod(blockCoords.X, Chunk.SIDE_LENGTH),
+        //     blockCoords.Y,
+        //     Math.Mod(blockCoords.Z, Chunk.SIDE_LENGTH)
+        // );
+        //
+        // return chunk.GetLocalBlock(localBlockCoords);
     }
 
     public BlockData GetBlockData(Vector3 position)

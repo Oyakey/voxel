@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" uid="uid://c6a8607g51jec" path="res://chunk/Chunk.cs" id="1_yof0q"]
 
-[node name="Chunk" type="Node3D"]
+[node name="Chunk" type="MeshInstance3D"]
 script = ExtResource("1_yof0q")

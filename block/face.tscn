@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://b1jqfbj67cwhx"]
+[gd_scene load_steps=6 format=3 uid="uid://b1jqfbj67cwhx"]
 
 [ext_resource type="Shader" uid="uid://dksc0mpy6qyay" path="res://main.gdshader" id="1_85taf"]
 [ext_resource type="Texture2D" uid="uid://durqaibgtgjne" path="res://resources/images/block/stone.png" id="2_d8tsl"]
+[ext_resource type="Script" uid="uid://b738c7dt4fkls" path="res://block/face/Face.cs" id="3_melfr"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_07jjg"]
 
@@ -15,3 +16,4 @@ shader_parameter/showBorder = false
 [node name="Face" type="MeshInstance3D"]
 mesh = SubResource("QuadMesh_07jjg")
 surface_material_override/0 = SubResource("ShaderMaterial_85taf")
+script = ExtResource("3_melfr")

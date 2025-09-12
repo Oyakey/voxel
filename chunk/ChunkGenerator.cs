@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 
 namespace Voxel.Chunk;
@@ -8,7 +9,9 @@ public class ChunkGenerator(Node3D chunkParent)
 {
     private readonly Dictionary<ChunkCoords, ChunkData> _chunks = [];
     private readonly Dictionary<ChunkCoords, Chunk> _renderedChunks = [];
+    private readonly Dictionary<ChunkCoords, bool> _renderingChunks = [];
     private readonly Node3D _chunkParent = chunkParent;
+    public List<Chunk> _chunksToRender = [];
 
     public ChunkData GetChunk(ChunkCoords chunkCoords)
     {
@@ -26,8 +29,10 @@ public class ChunkGenerator(Node3D chunkParent)
 
     public void RenderChunk(ChunkCoords chunkCoords)
     {
-        if (_renderedChunks.ContainsKey(chunkCoords))
+        if (_renderedChunks.ContainsKey(chunkCoords) || _renderingChunks.ContainsKey(chunkCoords))
             return;
+
+        _renderingChunks.Add(chunkCoords, true);
 
         // Generate all neighboring chunks before rendering.
         for (var x = -1; x <= 1; x++)
@@ -40,11 +45,18 @@ public class ChunkGenerator(Node3D chunkParent)
 
         var chunkData = GetChunk(chunkCoords);
 
+        // new Task(() => HandleAsyncSpawn(chunkData)).Start();
+        HandleAsyncSpawn(chunkData);
+    }
+
+    private void HandleAsyncSpawn(ChunkData chunkData)
+    {
         var chunk = Chunk.Spawn(chunkData);
 
-        _renderedChunks.Add(chunkCoords, chunk);
+        _renderedChunks.Add(chunkData.Coords, chunk);
+        _renderingChunks.Remove(chunkData.Coords);
 
-        _chunkParent.AddChild(chunk);
+        _chunksToRender.Add(chunk);
     }
 
     public void RemoveChunk(ChunkCoords chunkCoords)
@@ -72,9 +84,10 @@ public class ChunkGenerator(Node3D chunkParent)
 
     public void RenderChunksAround(ChunkCoords chunkCoords)
     {
-        for (var x = -1; x <= 1; x++)
+        var renderDistance = Main.RenderDistance;
+        for (var x = -renderDistance; x <= renderDistance; x++)
         {
-            for (var y = -1; y <= 1; y++)
+            for (var y = -renderDistance; y <= renderDistance; y++)
             {
                 RenderChunk(new ChunkCoords(chunkCoords.X + x, chunkCoords.Y + y));
             }

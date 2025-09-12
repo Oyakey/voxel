@@ -14,7 +14,7 @@ public partial class Player : CharacterBody3D
     private Node3D _neck;
     private Camera3D _camera;
     private RayCast3D _rayCast;
-    private Block _hoveredBlock;
+    private Blocks.Block _hoveredBlock;
     private bool _isFlying = true;
 
     private void _ready()
@@ -22,6 +22,7 @@ public partial class Player : CharacterBody3D
         _neck = GetNode<Node3D>("Neck");
         _camera = GetNode<Camera3D>("Neck/Camera");
         _rayCast = GetNode<RayCast3D>("Neck/Camera/RayCast");
+        Main.Player = this;
     }
 
     private void _process(float delta)
@@ -58,7 +59,7 @@ public partial class Player : CharacterBody3D
 
         var hit = _rayCast.GetCollider();
 
-        if (hit is Block block)
+        if (hit is Blocks.Block block)
         {
             _hoveredBlock = block;
             _hoveredBlock.SetBlockHovered(true);

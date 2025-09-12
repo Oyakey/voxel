@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace Voxel;
+namespace Voxel.Blocks;
 
 public partial class Block : StaticBody3D
 {
@@ -110,36 +110,18 @@ public partial class Block : StaticBody3D
 
     public void RenderFaces(int renderMode)
     {
-        if ((renderMode & (int)RenderMode.North) != 0)
+        if ((renderMode & (int)BlockDirection.North) != 0)
             RenderFace(_northMesh);
-        if ((renderMode & (int)RenderMode.South) != 0)
+        if ((renderMode & (int)BlockDirection.South) != 0)
             RenderFace(_southMesh);
-        if ((renderMode & (int)RenderMode.East) != 0)
+        if ((renderMode & (int)BlockDirection.East) != 0)
             RenderFace(_eastMesh);
-        if ((renderMode & (int)RenderMode.West) != 0)
+        if ((renderMode & (int)BlockDirection.West) != 0)
             RenderFace(_westMesh);
-        if ((renderMode & (int)RenderMode.Up) != 0)
+        if ((renderMode & (int)BlockDirection.Up) != 0)
             RenderFace(_upMesh);
-        if ((renderMode & (int)RenderMode.Down) != 0)
+        if ((renderMode & (int)BlockDirection.Down) != 0)
             RenderFace(_downMesh);
-    }
-
-    // The values are multiples of 2 so that we can use them as bit flags.
-    public enum RenderMode : int
-    {
-        North = 0b_0000_0001,
-        South = 0b_0000_0010,
-        East = 0b_0000_0100,
-        West = 0b_0000_1000,
-        Up = 0b_0001_0000,
-        Down = 0b_0010_0000
-    }
-
-    public CompressedTexture2D GetBlockTexture()
-    {
-        return ResourceLoader
-      .Load<CompressedTexture2D>("res://resources/images/block/dirt.png");
-
     }
 
     public void SetBlockData(BlockData blockData)
