@@ -107,6 +107,7 @@ public partial class Chunk : MeshInstance3D
         // No blendshapes, lods, or compression used.
         arrMesh?.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
         Mesh = arrMesh;
+        CreateTrimeshCollision();
     }
 
     // This old system will be removed once mesh generation is finished.

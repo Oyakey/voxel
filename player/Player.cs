@@ -1,5 +1,6 @@
 ﻿using Godot;
 using Voxel.Chunk;
+using Voxel.Inputs;
 
 namespace Voxel;
 
@@ -16,6 +17,7 @@ public partial class Player : CharacterBody3D
     private RayCast3D _rayCast;
     private Blocks.Block _hoveredBlock;
     private bool _isFlying = true;
+    private DoubleTap _jumpDoubleTap = new("jump", 0.3f);
 
     private void _ready()
     {
@@ -29,6 +31,18 @@ public partial class Player : CharacterBody3D
     {
         HandleMovement(delta);
         HandleLoadChunk();
+        _jumpDoubleTap.UpdateDoubleTap();
+        HandleDoubleTap();
+    }
+
+    private void HandleDoubleTap()
+    {
+        if (!_jumpDoubleTap.IsDoubleTapped)
+        {
+            return;
+        }
+
+        _isFlying = !_isFlying;
     }
 
     private void HandleLoadChunk()
