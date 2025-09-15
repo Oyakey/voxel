@@ -19,7 +19,7 @@ public partial class Main : Node3D
     public static ChunkCoords PlayerCurrentChunk { get; set; }
     public static CharacterBody3D Player { get; set; }
 
-    public const int RenderDistance = 5;
+    public const int RenderDistance = 3;
 
     public static float WorldGenerator(Vector3 position)
     {
@@ -45,7 +45,7 @@ public partial class Main : Node3D
         ChunkGenerator.RenderChunk(new ChunkCoords(0, 0));
     }
 
-    private void _process(float delta)
+    private void _process(float _)
     {
         foreach (var chunk in _chunkGenerator._chunksToRender)
         {

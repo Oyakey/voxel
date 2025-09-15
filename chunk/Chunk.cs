@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Godot;
 using Voxel.Blocks;
 
@@ -7,8 +9,8 @@ namespace Voxel.Chunk;
 public partial class Chunk : MeshInstance3D
 {
     public const int SIDE_LENGTH = 16;
-    public const int MIN_HEIGHT = -8;
-    public const int MAX_HEIGHT = 8;
+    public const int MIN_HEIGHT = -64;
+    public const int MAX_HEIGHT = 192;
 
     private long _worldSeed = 123456789;
     private long _chunkSeed;
@@ -19,7 +21,9 @@ public partial class Chunk : MeshInstance3D
     private static readonly PackedScene chunkPrefab = ResourceLoader
       .Load<PackedScene>("res://chunk/chunk.tscn");
 
-    private MeshInstance3D _opaqueMesh;
+    private Mesh _tempMesh;
+
+    private bool _isRendering = false;
 
     public static Chunk Spawn(ChunkData chunkData)
     {
@@ -28,12 +32,19 @@ public partial class Chunk : MeshInstance3D
         var x = chunkData.Coords.X;
         var y = chunkData.Coords.Y;
         chunk.Position = new Vector3(x * SIDE_LENGTH, 0, y * SIDE_LENGTH);
-        chunk.renderBlocks();
+        // chunk.renderBlocks();
         return chunk;
+    }
+
+    public void _ready()
+    {
+        RenderBlocksOnThread();
     }
 
     private void _process(float _)
     {
+        AddMeshToScene();
+
         var chunkCoords = Main.PlayerCurrentChunk;
 
         var distanceXFromPlayer = Math.Abs(_chunkData.Coords.X - chunkCoords.X);
@@ -45,7 +56,28 @@ public partial class Chunk : MeshInstance3D
         }
     }
 
-    private void renderBlocks()
+    private void RenderBlocksOnThread()
+    {
+        new Task(RenderBlocks).Start();
+    }
+
+    private void RenderBlocksAsync()
+    {
+        new Thread(RenderBlocks).Start();
+    }
+
+    private void AddMeshToScene()
+    {
+        if (_tempMesh == null)
+            return;
+        Mesh = _tempMesh;
+        CreateTrimeshCollision();
+        // SetDeferred("mesh", _tempMesh);
+        // CallDeferred("create_trimesh_collision");
+        _tempMesh = null;
+    }
+
+    private void RenderBlocks()
     {
         // We need to check what blocks should be rendered
         // They are :
@@ -53,9 +85,7 @@ public partial class Chunk : MeshInstance3D
         // 2. Blocks that are NOT surrounded by blocks on all sides
         // 3. Theses blocks should have only their visible faces rendered
         // We also need to make this operation asynchronous so that it won't freeze the game
-
-        Godot.Collections.Array surfaceArray = [];
-        surfaceArray.Resize((int)Mesh.ArrayType.Max);
+        _isRendering = true;
 
         for (var x = 0; x < SIDE_LENGTH; x++)
         {
@@ -97,17 +127,40 @@ public partial class Chunk : MeshInstance3D
             }
         }
 
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = _meshRenderer.Verts.ToArray();
-        // surfaceArray[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = _meshRenderer.Normals.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Index] = _meshRenderer.Indices.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Color] = _meshRenderer.Colors.ToArray();
-
         var arrMesh = new ArrayMesh();
+        var surfaceArray = _meshRenderer.GetSurfaceArray();
+
         // No blendshapes, lods, or compression used.
         arrMesh?.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
-        Mesh = arrMesh;
-        CreateTrimeshCollision();
+
+
+        StandardMaterial3D atlasMaterial = new()
+        {
+            AlbedoTexture = GD.Load<Texture2D>("res://resources/images/spritesheet.png"),
+            CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
+            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
+        };
+
+        StandardMaterial3D topGrassMaterial = new()
+        {
+            AlbedoTexture = GD.Load<CompressedTexture2D>("res://resources/images/block/grass_block_top_item.png"),
+            CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
+            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
+        };
+        StandardMaterial3D sideGrassMaterial = new()
+        {
+            AlbedoTexture = GD.Load<CompressedTexture2D>("res://resources/images/block/grass_block_top_item.png"),
+            CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
+            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
+        };
+
+        // var uvs = GetUVsFromAtlas(tileCoords, tileSize);
+
+        arrMesh.SurfaceSetMaterial(0, atlasMaterial);
+        // arrMesh.SurfaceSetMaterial(1, topGrassMaterial);
+
+        _tempMesh = arrMesh;
+        _isRendering = false;
     }
 
     // This old system will be removed once mesh generation is finished.
@@ -147,4 +200,17 @@ public partial class Chunk : MeshInstance3D
         return blockData != null && blockData.Type != BlockType.Air;
     }
 
+    private static Vector2[] GetUVsFromAtlas(Vector2I tileCoords, Vector2I tilesInAtlas)
+    {
+        float tileWidth = 1f / tilesInAtlas.X;
+        float tileHeight = 1f / tilesInAtlas.Y;
+        Vector2 offset = new Vector2(tileCoords.X * tileWidth, tileCoords.Y * tileHeight);
+
+        return [
+            offset + new Vector2(0, tileHeight),           // Bottom-left
+            offset + new Vector2(tileWidth, tileHeight),   // Bottom-right
+            offset + new Vector2(tileWidth, 0),            // Top-right
+            offset + new Vector2(0, 0)                     // Top-left
+        ];
+    }
 }

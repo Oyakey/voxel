@@ -9,15 +9,15 @@ public partial class Player : CharacterBody3D
     private const float _speed = 6;
     private const float _xSensitivity = 0.002f;
     private const float _ySensitivity = 0.002f;
-    private const float _jumpForce = 5;
+    private readonly float _jumpForce = Mathf.Sqrt(9.8f * 2);
     private const float _jumpGravity = 9.8f * 2;
-    private const float _gravity = 9.8f * 2;
+    private const float _gravity = 9.8f * 3;
     private Node3D _neck;
     private Camera3D _camera;
     private RayCast3D _rayCast;
     private Blocks.Block _hoveredBlock;
     private bool _isFlying = true;
-    private DoubleTap _jumpDoubleTap = new("jump", 0.3f);
+    private readonly DoubleTap _jumpDoubleTap = new("jump", 0.3f);
 
     private void _ready()
     {
@@ -32,10 +32,10 @@ public partial class Player : CharacterBody3D
         HandleMovement(delta);
         HandleLoadChunk();
         _jumpDoubleTap.UpdateDoubleTap();
-        HandleDoubleTap();
+        HandleDoubleJump();
     }
 
-    private void HandleDoubleTap()
+    private void HandleDoubleJump()
     {
         if (!_jumpDoubleTap.IsDoubleTapped)
         {
@@ -108,8 +108,9 @@ public partial class Player : CharacterBody3D
 
         if (Input.IsActionJustPressed("jump") && !_isFlying)
         {
-            Velocity = Vector3.Up * _jumpForce;
+            movementVector = Vector3.Up * _jumpForce;
         }
+
         if (_isFlying)
         {
             movementVector.Y = 0;

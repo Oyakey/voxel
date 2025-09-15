@@ -23,7 +23,10 @@ public class ChunkData
         var blockWorldCoords = LocalToWorld(blockCoords);
 
         // TODO: This is a temporary implementation to test the rendering of the chunks.
-        var height = Utils.Math.Mod(blockWorldCoords.X + blockWorldCoords.Z, 10) - 5;
+        var height = (int)(Mathf.Sin(blockWorldCoords.X * .1) * 10 - Mathf.Sin(blockWorldCoords.Z * .1) * 10);
+        // var height = 0;
+        // var height = Math.Mod(blockWorldCoords.Z, 10) - 5;
+        // var height = Math.Mod(blockWorldCoords.X + blockWorldCoords.Z, 10) - 5;
         var stone = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
         var air = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
         return blockCoords.Y < height ? stone : air;

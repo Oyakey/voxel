@@ -20,13 +20,11 @@ public class DoubleTap(string action, float doubleTapTime = 0.3f)
 
         if (Time.GetTicksMsec() - _lastPressTime < (_doubleTapTime * 1000f))
         {
-            GD.Print("Double tapped");
             IsDoubleTapped = true;
             _lastPressTime = 0;
             return;
         }
 
-        GD.Print("Just pressed once");
         _lastPressTime = Time.GetTicksMsec();
     }
 
