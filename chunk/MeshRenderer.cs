@@ -7,28 +7,27 @@ namespace Voxel.Chunk;
 
 public class MeshRenderer
 {
-    public List<Vector3> Verts = [];
-    public List<Vector2> Uvs = [];
-    public List<Vector3> Normals = [];
-    public List<int> Indices = [];
-    public List<Color> Colors = [];
+    private readonly List<Vector3> _vertices = [];
+    private readonly List<Vector2> _uvs = [];
+    private readonly List<Vector3> _normals = [];
+    private readonly List<int> _indices = [];
 
     public Godot.Collections.Array GetSurfaceArray()
     {
         Godot.Collections.Array surfaceArray = [];
         surfaceArray.Resize((int)Mesh.ArrayType.Max);
 
-        surfaceArray[(int)Mesh.ArrayType.Vertex] = Verts.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.TexUV] = Uvs.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Normal] = Normals.ToArray();
-        surfaceArray[(int)Mesh.ArrayType.Index] = Indices.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = _vertices.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.TexUV] = _uvs.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = _normals.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Index] = _indices.ToArray();
 
         return surfaceArray;
     }
 
     public void GenerateQuad(Vector3 position, BlockDirection direction = BlockDirection.South)
     {
-        var index = Verts.Count;
+        var index = _vertices.Count;
 
         switch (direction)
         {
@@ -42,123 +41,146 @@ public class MeshRenderer
 
             // Towards negative Z
             case BlockDirection.North:
-                Verts.Add(position + new Vector3(0, 0, -1));
-                Verts.Add(position + new Vector3(1, 0, -1));
-                Verts.Add(position + new Vector3(1, 1, -1));
-                Verts.Add(position + new Vector3(0, 1, -1));
-                Normals.Add(new Vector3(0, 0, -1));
-                Normals.Add(new Vector3(0, 0, -1));
-                Normals.Add(new Vector3(0, 0, -1));
-                Normals.Add(new Vector3(0, 0, -1));
-                Uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
-                Indices.Add(index);
-                Indices.Add(index + 1);
-                Indices.Add(index + 2);
-                Indices.Add(index + 2);
-                Indices.Add(index + 3);
-                Indices.Add(index);
+                _vertices.AddRange([
+                    position + new Vector3(0, 0, -1),
+                    position + new Vector3(1, 0, -1),
+                    position + new Vector3(1, 1, -1),
+                    position + new Vector3(0, 1, -1),
+                ]);
+                _normals.AddRange([
+                    new Vector3(0, 0, -1),
+                    new Vector3(0, 0, -1),
+                    new Vector3(0, 0, -1),
+                    new Vector3(0, 0, -1),
+                ]);
+                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _indices.AddRange([
+                    index,
+                    index + 1,
+                    index + 2,
+                    index + 2,
+                    index + 3,
+                    index
+                ]);
                 break;
 
             // Towards positive Z
             case BlockDirection.South:
-                Verts.Add(position + new Vector3(0, 0, 0));
-                Verts.Add(position + new Vector3(1, 0, 0));
-                Verts.Add(position + new Vector3(1, 1, 0));
-                Verts.Add(position + new Vector3(0, 1, 0));
-                Normals.Add(new Vector3(0, 0, 1));
-                Normals.Add(new Vector3(0, 0, 1));
-                Normals.Add(new Vector3(0, 0, 1));
-                Normals.Add(new Vector3(0, 0, 1));
-                Uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
-                Indices.Add(index + 2);
-                Indices.Add(index + 1);
-                Indices.Add(index);
-                Indices.Add(index);
-                Indices.Add(index + 3);
-                Indices.Add(index + 2);
+                _vertices.AddRange([
+                    position + new Vector3(0, 0, 0),
+                    position + new Vector3(1, 0, 0),
+                    position + new Vector3(1, 1, 0),
+                    position + new Vector3(0, 1, 0),
+                ]);
+                _normals.AddRange([
+                    new Vector3(0, 0, 1),
+                    new Vector3(0, 0, 1),
+                    new Vector3(0, 0, 1),
+                    new Vector3(0, 0, 1),
+                ]);
+                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _indices.AddRange([
+                    index + 2,
+                    index + 1,
+                    index,
+                    index,
+                    index + 3,
+                    index + 2,
+                ]);
                 break;
 
             // Towards positive X
             case BlockDirection.East:
-                Verts.Add(position + new Vector3(1, 0, 0));   // Bottom-Front  → BL
-                Verts.Add(position + new Vector3(1, 0, -1));  // Bottom-Back   → BR
-                Verts.Add(position + new Vector3(1, 1, -1));  // Top-Back      → TR
-                Verts.Add(position + new Vector3(1, 1, 0));   // Top-Front     → TL
-                Normals.Add(new Vector3(1, 0, 0));
-                Normals.Add(new Vector3(1, 0, 0));
-                Normals.Add(new Vector3(1, 0, 0));
-                Normals.Add(new Vector3(1, 0, 0));
-                Uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
-                Indices.Add(index + 2);
-                Indices.Add(index + 1);
-                Indices.Add(index);
-                Indices.Add(index);
-                Indices.Add(index + 3);
-                Indices.Add(index + 2);
+                _vertices.Add(position + new Vector3(1, 0, 0));   // Bottom-Front  → BL
+                _vertices.Add(position + new Vector3(1, 0, -1));  // Bottom-Back   → BR
+                _vertices.Add(position + new Vector3(1, 1, -1));  // Top-Back      → TR
+                _vertices.Add(position + new Vector3(1, 1, 0));   // Top-Front     → TL
+                _normals.AddRange([
+                    new Vector3(1, 0, 0),
+                    new Vector3(1, 0, 0),
+                    new Vector3(1, 0, 0),
+                    new Vector3(1, 0, 0),
+                ]);
+                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _indices.AddRange([
+                    index + 2,
+                    index + 1,
+                    index,
+                    index,
+                    index + 3,
+                    index + 2,
+                ]);
                 break;
 
             // Towards negative X
             case BlockDirection.West:
-                Verts.Add(position + new Vector3(0, 0, -1));
-                Verts.Add(position + new Vector3(0, 0, 0));
-                Verts.Add(position + new Vector3(0, 1, 0));
-                Verts.Add(position + new Vector3(0, 1, -1));
-                Normals.Add(new Vector3(-1, 0, 0));
-                Normals.Add(new Vector3(-1, 0, 0));
-                Normals.Add(new Vector3(-1, 0, 0));
-                Normals.Add(new Vector3(-1, 0, 0));
-                Uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
-                Indices.Add(index + 2);
-                Indices.Add(index + 1);
-                Indices.Add(index);
-                Indices.Add(index);
-                Indices.Add(index + 3);
-                Indices.Add(index + 2);
+                _vertices.Add(position + new Vector3(0, 0, -1));
+                _vertices.Add(position + new Vector3(0, 0, 0));
+                _vertices.Add(position + new Vector3(0, 1, 0));
+                _vertices.Add(position + new Vector3(0, 1, -1));
+                _normals.AddRange([
+                    new Vector3(-1, 0, 0),
+                    new Vector3(-1, 0, 0),
+                    new Vector3(-1, 0, 0),
+                    new Vector3(-1, 0, 0),
+                ]);
+                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _indices.AddRange([
+                    index + 2,
+                    index + 1,
+                    index,
+                    index,
+                    index + 3,
+                    index + 2,
+                ]);
                 break;
 
             // Towards positive Y
             case BlockDirection.Up:
-                Verts.Add(position + new Vector3(0, 1, -1));
-                Verts.Add(position + new Vector3(1, 1, -1));
-                Verts.Add(position + new Vector3(1, 1, 0));
-                Verts.Add(position + new Vector3(0, 1, 0));
-                Normals.Add(new Vector3(0, 1, 0));
-                Normals.Add(new Vector3(0, 1, 0));
-                Normals.Add(new Vector3(0, 1, 0));
-                Normals.Add(new Vector3(0, 1, 0));
-                Uvs.AddRange(GetUVsFromAtlas(new Vector2I(0, 0), new Vector2I(24, 44)));
-                Indices.Add(index);
-                Indices.Add(index + 1);
-                Indices.Add(index + 2);
-                Indices.Add(index + 2);
-                Indices.Add(index + 3);
-                Indices.Add(index);
+                _vertices.Add(position + new Vector3(0, 1, -1));
+                _vertices.Add(position + new Vector3(1, 1, -1));
+                _vertices.Add(position + new Vector3(1, 1, 0));
+                _vertices.Add(position + new Vector3(0, 1, 0));
+                _normals.AddRange([
+                    new Vector3(0, 1, 0),
+                    new Vector3(0, 1, 0),
+                    new Vector3(0, 1, 0),
+                    new Vector3(0, 1, 0),
+                ]);
+                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(0, 0), new Vector2I(24, 44)));
+                _indices.AddRange([
+                    index,
+                    index + 1,
+                    index + 2,
+                    index + 2,
+                    index + 3,
+                    index
+                ]);
                 break;
 
             // Towards negative Y
             case BlockDirection.Down:
-                Verts.Add(position + new Vector3(1, 0, -1));
-                Verts.Add(position + new Vector3(0, 0, -1));
-                Verts.Add(position + new Vector3(0, 0, 0));
-                Verts.Add(position + new Vector3(1, 0, 0));
-                Normals.Add(new Vector3(0, -1, 0));
-                Normals.Add(new Vector3(0, -1, 0));
-                Normals.Add(new Vector3(0, -1, 0));
-                Normals.Add(new Vector3(0, -1, 0));
-                Uvs.AddRange(GetUVsFromAtlas(new Vector2I(2, 0), new Vector2I(24, 44)));
-                Indices.Add(index);
-                Indices.Add(index + 1);
-                Indices.Add(index + 2);
-                Indices.Add(index + 2);
-                Indices.Add(index + 3);
-                Indices.Add(index);
+                _vertices.Add(position + new Vector3(1, 0, -1));
+                _vertices.Add(position + new Vector3(0, 0, -1));
+                _vertices.Add(position + new Vector3(0, 0, 0));
+                _vertices.Add(position + new Vector3(1, 0, 0));
+                _normals.AddRange([
+                    new Vector3(0, -1, 0),
+                    new Vector3(0, -1, 0),
+                    new Vector3(0, -1, 0),
+                    new Vector3(0, -1, 0),
+                ]);
+                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(2, 0), new Vector2I(24, 44)));
+                _indices.AddRange([
+                    index,
+                    index + 1,
+                    index + 2,
+                    index + 2,
+                    index + 3,
+                    index
+                ]);
                 break;
         }
-
-        Colors.Add(Godot.Colors.Red);
-        Colors.Add(Godot.Colors.Green);
-        Colors.Add(Godot.Colors.Blue);
-        Colors.Add(Godot.Colors.Magenta);
     }
 
     private static Vector2[] GetUVsFromAtlas(Vector2I tileCoords, Vector2I tilesInAtlas)

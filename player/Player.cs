@@ -17,7 +17,7 @@ public partial class Player : CharacterBody3D
     private RayCast3D _rayCast;
     private Blocks.Block _hoveredBlock;
     private bool _isFlying = true;
-    private readonly DoubleTap _jumpDoubleTap = new("jump", 0.3f);
+    private readonly DoubleTap _jumpDoubleTap = new("jump", 0.2f);
 
     private void _ready()
     {
