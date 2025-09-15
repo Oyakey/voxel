@@ -25,6 +25,11 @@ public class MeshRenderer
         return surfaceArray;
     }
 
+    public readonly Vector2I grassBlockTop = new(38, 36);
+    public readonly Vector2I grassBlockSide = new(22, 36);
+    public readonly Vector2I dirt = new(11, 32);
+    public readonly Vector2I atlasSize = new(128, 64);
+
     public void GenerateQuad(Vector3 position, BlockDirection direction = BlockDirection.South)
     {
         var index = _vertices.Count;
@@ -53,7 +58,7 @@ public class MeshRenderer
                     new Vector3(0, 0, -1),
                     new Vector3(0, 0, -1),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
                 _indices.AddRange([
                     index,
                     index + 1,
@@ -78,7 +83,7 @@ public class MeshRenderer
                     new Vector3(0, 0, 1),
                     new Vector3(0, 0, 1),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
                 _indices.AddRange([
                     index + 2,
                     index + 1,
@@ -101,7 +106,7 @@ public class MeshRenderer
                     new Vector3(1, 0, 0),
                     new Vector3(1, 0, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
                 _indices.AddRange([
                     index + 2,
                     index + 1,
@@ -124,7 +129,7 @@ public class MeshRenderer
                     new Vector3(-1, 0, 0),
                     new Vector3(-1, 0, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(3, 0), new Vector2I(24, 44)));
+                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
                 _indices.AddRange([
                     index + 2,
                     index + 1,
@@ -147,7 +152,7 @@ public class MeshRenderer
                     new Vector3(0, 1, 0),
                     new Vector3(0, 1, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(0, 0), new Vector2I(24, 44)));
+                _uvs.AddRange(GetUVsFromAtlas(grassBlockTop, atlasSize));
                 _indices.AddRange([
                     index,
                     index + 1,
@@ -170,7 +175,7 @@ public class MeshRenderer
                     new Vector3(0, -1, 0),
                     new Vector3(0, -1, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(new Vector2I(2, 0), new Vector2I(24, 44)));
+                _uvs.AddRange(GetUVsFromAtlas(dirt, atlasSize));
                 _indices.AddRange([
                     index,
                     index + 1,

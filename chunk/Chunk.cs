@@ -133,31 +133,14 @@ public partial class Chunk : MeshInstance3D
         // No blendshapes, lods, or compression used.
         arrMesh?.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
-
         StandardMaterial3D atlasMaterial = new()
         {
-            AlbedoTexture = GD.Load<Texture2D>("res://resources/images/spritesheet.png"),
+            AlbedoTexture = GD.Load<Texture2D>("res://resources/images/textures-atlas.png"),
             CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
             TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
         };
-
-        StandardMaterial3D topGrassMaterial = new()
-        {
-            AlbedoTexture = GD.Load<CompressedTexture2D>("res://resources/images/block/grass_block_top_item.png"),
-            CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
-            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
-        };
-        StandardMaterial3D sideGrassMaterial = new()
-        {
-            AlbedoTexture = GD.Load<CompressedTexture2D>("res://resources/images/block/grass_block_top_item.png"),
-            CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
-            TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
-        };
-
-        // var uvs = GetUVsFromAtlas(tileCoords, tileSize);
 
         arrMesh.SurfaceSetMaterial(0, atlasMaterial);
-        // arrMesh.SurfaceSetMaterial(1, topGrassMaterial);
 
         _tempMesh = arrMesh;
         _isRendering = false;
