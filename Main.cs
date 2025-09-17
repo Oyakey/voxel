@@ -19,7 +19,7 @@ public partial class Main : Node3D
     public static ChunkCoords PlayerCurrentChunk { get; set; }
     public static CharacterBody3D Player { get; set; }
 
-    public const int RenderDistance = 3;
+    public const int RenderDistance = 5;
 
     public static float WorldGenerator(Vector3 position)
     {

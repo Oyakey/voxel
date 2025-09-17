@@ -6,7 +6,8 @@ namespace Voxel;
 
 public partial class Player : CharacterBody3D
 {
-    private const float _speed = 6;
+    private const float _speed = 4;
+    private const float _flySpeed = 10;
     private const float _xSensitivity = 0.002f;
     private const float _ySensitivity = 0.002f;
     private readonly float _jumpForce = Mathf.Sqrt(9.8f * 2);
@@ -15,7 +16,7 @@ public partial class Player : CharacterBody3D
     private Node3D _neck;
     private Camera3D _camera;
     private RayCast3D _rayCast;
-    private Blocks.Block _hoveredBlock;
+    private Vector3I _hoveredBlock;
     private bool _isFlying = true;
     private readonly DoubleTap _jumpDoubleTap = new("jump", 0.2f);
 
@@ -33,6 +34,25 @@ public partial class Player : CharacterBody3D
         HandleLoadChunk();
         _jumpDoubleTap.UpdateDoubleTap();
         HandleDoubleJump();
+        HandleBreakingBlock();
+    }
+
+    private void HandleBreakingBlock()
+    {
+        if (
+            !Input.IsActionJustPressed("attack") ||
+            !_rayCast.IsColliding()
+        )
+        {
+            return;
+        }
+        if (_rayCast.GetCollider() is StaticBody3D body)
+        {
+            if (body.GetParent() is Chunk.Chunk chunk)
+            {
+                chunk.BreakBlock(new BlockCoords(_hoveredBlock.X, _hoveredBlock.Y, _hoveredBlock.Z));
+            }
+        }
     }
 
     private void HandleDoubleJump()
@@ -61,23 +81,29 @@ public partial class Player : CharacterBody3D
         if (!_isFlying)
             HandleGravity(delta);
 
-        // HandleHoveringBlock();
+        HandleHoveringBlock();
     }
 
     private void HandleHoveringBlock()
     {
-        _hoveredBlock?.SetBlockHovered(false);
-
         if (!_rayCast.IsColliding())
             return;
 
-        var hit = _rayCast.GetCollider();
+        _hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+    }
 
-        if (hit is Blocks.Block block)
+    private static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
+    {
+        var y = Mathf.FloorToInt(hit.Y);
+        if (Mathf.Abs(hit.Y - Mathf.RoundToInt(hit.Y)) < 0.0001)
         {
-            _hoveredBlock = block;
-            _hoveredBlock.SetBlockHovered(true);
+            y = Mathf.RoundToInt(hit.Y);
         }
+        return new Vector3I(
+            Mathf.FloorToInt(hit.X),
+            normal == Vector3.Up ? y - 1 : y,
+            Mathf.CeilToInt(hit.Z)
+        );
     }
 
     private void HandleGravity(float delta)
@@ -98,7 +124,7 @@ public partial class Player : CharacterBody3D
         var direction = Input.GetVector("left", "right", "forward", "back");
         direction = direction.Normalized();
 
-        var speedDirection = direction * _speed;
+        var speedDirection = direction * (_isFlying ? _flySpeed : _speed);
 
         var movementVector = new Vector3(
             speedDirection.X,

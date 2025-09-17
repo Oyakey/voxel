@@ -14,8 +14,9 @@ public partial class Chunk : MeshInstance3D
 
     private long _worldSeed = 123456789;
     private long _chunkSeed;
+    private CollisionShape3D _collisionShape;
 
-    private readonly MeshRenderer _meshRenderer = new();
+    private MeshRenderer _meshRenderer = new();
     private ChunkData _chunkData;
 
     private static readonly PackedScene chunkPrefab = ResourceLoader
@@ -38,6 +39,16 @@ public partial class Chunk : MeshInstance3D
 
     public void _ready()
     {
+        RenderBlocksOnThread();
+        _collisionShape = GetNode<CollisionShape3D>("StaticBody3D/CollisionShape3D");
+    }
+
+    public void Rerender()
+    {
+        if (_isRendering)
+            return;
+
+        _meshRenderer = new MeshRenderer();
         RenderBlocksOnThread();
     }
 
@@ -71,10 +82,28 @@ public partial class Chunk : MeshInstance3D
         if (_tempMesh == null)
             return;
         Mesh = _tempMesh;
-        CreateTrimeshCollision();
-        // SetDeferred("mesh", _tempMesh);
-        // CallDeferred("create_trimesh_collision");
+        AddCollider();
         _tempMesh = null;
+    }
+
+    private void AddCollider()
+    {
+        if (_tempMesh == null)
+            return;
+        var shape = new ConcavePolygonShape3D();
+        shape.SetFaces(Mesh.GetFaces());
+        _collisionShape.Shape = shape;
+    }
+    public void BreakBlock(BlockCoords coords)
+    {
+        if (!_chunkData.CanBreakBlock(coords))
+        {
+            GD.Print($"Can't break block at {coords}");
+            return;
+        }
+        GD.Print($"Broke at {coords}");
+        _chunkData.Break(coords);
+        Rerender();
     }
 
     private void RenderBlocks()
@@ -131,13 +160,16 @@ public partial class Chunk : MeshInstance3D
         var surfaceArray = _meshRenderer.GetSurfaceArray();
 
         // No blendshapes, lods, or compression used.
-        arrMesh?.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+        arrMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
 
         StandardMaterial3D atlasMaterial = new()
         {
             AlbedoTexture = GD.Load<Texture2D>("res://resources/images/textures-atlas.png"),
             CullMode = BaseMaterial3D.CullModeEnum.Back, // optional: controls backface culling
             TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
+            // Big performance gains when using this instead of PerPixel.
+            ShadingMode = BaseMaterial3D.ShadingModeEnum.PerVertex,
+            // DisableReceiveShadows = true,
         };
 
         arrMesh.SurfaceSetMaterial(0, atlasMaterial);

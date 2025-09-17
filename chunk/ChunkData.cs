@@ -4,23 +4,36 @@ using Voxel.Utils;
 
 namespace Voxel.Chunk;
 
-public class ChunkData
+public class ChunkData(ChunkCoords coords)
 {
-    public ChunkCoords Coords { get; private set; }
+    public ChunkCoords Coords { get; private set; } = coords;
 
-    private readonly Dictionary<BlockCoords, BlockData> _blocks = [];
+    public readonly Dictionary<BlockCoords, BlockData> _blocks = [];
     private readonly PerlinNoise noiseGenerator = new();
-
-
-    public ChunkData(ChunkCoords coords)
-    {
-        Coords = coords;
-        // GenerateBlocks();
-    }
 
     public BlockData GetBlock(BlockCoords blockCoords)
     {
         var blockWorldCoords = LocalToWorld(blockCoords);
+
+        var chunkCoords = new ChunkCoords(
+            Mathf.FloorToInt(blockWorldCoords.X / Chunk.SIDE_LENGTH),
+            Mathf.FloorToInt(blockWorldCoords.Z / Chunk.SIDE_LENGTH)
+        );
+
+        var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
+        if (chunk != null)
+        {
+            var localBlockCoords = new BlockCoords(
+                Math.Mod(blockCoords.X, Chunk.SIDE_LENGTH),
+                blockCoords.Y,
+                Math.Mod(blockCoords.Z, Chunk.SIDE_LENGTH)
+            );
+
+            var block = chunk.GetLocalBlock(localBlockCoords);
+
+            if (block != null)
+                return block;
+        }
 
         // TODO: This is a temporary implementation to test the rendering of the chunks.
         var height = (int)(Mathf.Sin(blockWorldCoords.X * .1) * 10 - Mathf.Sin(blockWorldCoords.Z * .1) * 10);
@@ -30,22 +43,15 @@ public class ChunkData
         var stone = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
         var air = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
         return blockCoords.Y < height ? stone : air;
+    }
 
-        // var chunkCoords = new ChunkCoords(
-        //     Mathf.FloorToInt(blockWorldCoords.X / Chunk.SIDE_LENGTH),
-        //     Mathf.FloorToInt(blockWorldCoords.Z / Chunk.SIDE_LENGTH)
-        // );
-        // var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
-        // if (chunk == null)
-        //     return null;
-        //
-        // var localBlockCoords = new BlockCoords(
-        //     Math.Mod(blockCoords.X, Chunk.SIDE_LENGTH),
-        //     blockCoords.Y,
-        //     Math.Mod(blockCoords.Z, Chunk.SIDE_LENGTH)
-        // );
-        //
-        // return chunk.GetLocalBlock(localBlockCoords);
+    public void Break(BlockCoords block)
+    {
+        _blocks.TryAdd(block, new BlockData(new Vector3(0, 0, 0), BlockType.Air));
+    }
+    public bool CanBreakBlock(BlockCoords block)
+    {
+        return !_blocks.ContainsKey(block) || _blocks[block].Type != BlockType.Air;
     }
 
     public BlockData GetBlockData(Vector3 position)

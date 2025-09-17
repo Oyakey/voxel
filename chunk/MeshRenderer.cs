@@ -1,6 +1,5 @@
 ﻿using Godot;
 using System.Collections.Generic;
-using System.Linq;
 using Voxel.Blocks;
 
 namespace Voxel.Chunk;
@@ -25,9 +24,20 @@ public class MeshRenderer
         return surfaceArray;
     }
 
-    public readonly Vector2I grassBlockTop = new(38, 36);
-    public readonly Vector2I grassBlockSide = new(22, 36);
-    public readonly Vector2I dirt = new(11, 32);
+    public void Clear()
+    {
+        _vertices.Clear();
+        _uvs.Clear();
+        _normals.Clear();
+        _indices.Clear();
+    }
+
+    public readonly Vector2I grassBlockTop = new(8, 40);
+    // public readonly Vector2I grassBlockTop = new(38, 36);
+    public readonly Vector2I grassBlockSide = new(6, 40);
+    // public readonly Vector2I grassBlockSide = new(22, 36);
+    public readonly Vector2I dirt = new(7, 40);
+    // public readonly Vector2I dirt = new(11, 32);
     public readonly Vector2I atlasSize = new(128, 64);
 
     public void GenerateQuad(Vector3 position, BlockDirection direction = BlockDirection.South)
