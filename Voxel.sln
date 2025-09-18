@@ -2,11 +2,13 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voxel", "Voxel.csproj", "{2864234F-294F-44E6-B2AD-ECAA13C9BF95}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{A5C1D610-3331-4707-BEAE-733FFE1ABA85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-	Debug|Any CPU = Debug|Any CPU
-	ExportDebug|Any CPU = ExportDebug|Any CPU
-	ExportRelease|Any CPU = ExportRelease|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		ExportDebug|Any CPU = ExportDebug|Any CPU
+		ExportRelease|Any CPU = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2864234F-294F-44E6-B2AD-ECAA13C9BF95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -15,5 +17,11 @@ Global
 		{2864234F-294F-44E6-B2AD-ECAA13C9BF95}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{2864234F-294F-44E6-B2AD-ECAA13C9BF95}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{2864234F-294F-44E6-B2AD-ECAA13C9BF95}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{A5C1D610-3331-4707-BEAE-733FFE1ABA85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5C1D610-3331-4707-BEAE-733FFE1ABA85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5C1D610-3331-4707-BEAE-733FFE1ABA85}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5C1D610-3331-4707-BEAE-733FFE1ABA85}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{A5C1D610-3331-4707-BEAE-733FFE1ABA85}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5C1D610-3331-4707-BEAE-733FFE1ABA85}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
