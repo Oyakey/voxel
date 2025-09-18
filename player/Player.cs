@@ -37,20 +37,25 @@ public partial class Player : CharacterBody3D
         HandleBreakingBlock();
     }
 
+    private const float _attackCooldown = 0.5f;
+    private float _lastAttackTime = 0;
     private void HandleBreakingBlock()
     {
         if (
-            !Input.IsActionJustPressed("attack") ||
-            !_rayCast.IsColliding()
+            !Input.IsActionPressed("attack") ||
+            !_rayCast.IsColliding() ||
+            Time.GetTicksMsec() - _lastAttackTime < (_attackCooldown * 1000)
         )
         {
             return;
         }
+        _lastAttackTime = Time.GetTicksMsec();
         if (_rayCast.GetCollider() is StaticBody3D body)
         {
             if (body.GetParent() is Chunk.Chunk chunk)
             {
-                chunk.BreakBlock(new BlockCoords(_hoveredBlock.X, _hoveredBlock.Y, _hoveredBlock.Z));
+                var hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+                chunk.BreakBlock(new BlockCoords(hoveredBlock.X, hoveredBlock.Y, hoveredBlock.Z));
             }
         }
     }
@@ -84,25 +89,21 @@ public partial class Player : CharacterBody3D
         HandleHoveringBlock();
     }
 
-    private void HandleHoveringBlock()
+    private static void HandleHoveringBlock()
     {
-        if (!_rayCast.IsColliding())
-            return;
-
-        _hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+        // if (!_rayCast.IsColliding())
+        //     return;
+        //
+        // _hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
     }
 
     private static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
     {
-        var y = Mathf.FloorToInt(hit.Y);
-        if (Mathf.Abs(hit.Y - Mathf.RoundToInt(hit.Y)) < 0.0001)
-        {
-            y = Mathf.RoundToInt(hit.Y);
-        }
+        GD.Print(hit);
         return new Vector3I(
-            Mathf.FloorToInt(hit.X),
-            normal == Vector3.Up ? y - 1 : y,
-            Mathf.CeilToInt(hit.Z)
+            normal.X == 0 ? Mathf.FloorToInt(hit.X) : Mathf.RoundToInt(hit.X),
+            normal.Y == 0 ? Mathf.FloorToInt(hit.Y) : Mathf.RoundToInt(hit.Y),
+            normal.Z == 0 ? Mathf.CeilToInt(hit.Z) : Mathf.RoundToInt(hit.Z)
         );
     }
 
