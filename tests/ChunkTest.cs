@@ -46,16 +46,7 @@ public class ChunkTest
     )
     {
         System.Console.WriteLine($"Hit: {hit}, Normal: {normal} should resolve to {expectedCoords}");
-        var blockCoords = HitToBlockCoords(hit, normal);
-        Assert.AreEqual(expectedCoords, blockCoords);
-    }
-
-    private static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
-    {
-        return new Vector3I(
-            normal.X == 0 ? Mathf.FloorToInt(hit.X) : Mathf.RoundToInt(hit.X),
-            normal.Y == 0 ? Mathf.FloorToInt(hit.Y) : Mathf.RoundToInt(hit.Y),
-            normal.Z == 0 ? Mathf.FloorToInt(hit.Z) : Mathf.RoundToInt(hit.Z)
-        );
+        var blockCoords = Player.HitToBlockCoords(hit, normal);
+        Assert.That(blockCoords, Is.EqualTo(expectedCoords));
     }
 }

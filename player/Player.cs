@@ -97,13 +97,12 @@ public partial class Player : CharacterBody3D
         // _hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
     }
 
-    private static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
+    public static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
     {
-        GD.Print(hit);
         return new Vector3I(
             normal.X == 0 ? Mathf.FloorToInt(hit.X) : Mathf.RoundToInt(hit.X),
             normal.Y == 0 ? Mathf.FloorToInt(hit.Y) : Mathf.RoundToInt(hit.Y),
-            normal.Z == 0 ? Mathf.CeilToInt(hit.Z) : Mathf.RoundToInt(hit.Z)
+            normal.Z == 0 ? Mathf.FloorToInt(hit.Z) : Mathf.RoundToInt(hit.Z)
         );
     }
 
