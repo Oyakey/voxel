@@ -35,6 +35,7 @@ public partial class Player : CharacterBody3D
         _jumpDoubleTap.UpdateDoubleTap();
         HandleDoubleJump();
         HandleBreakingBlock();
+        HandlePlaceBlock();
     }
 
     private const float _attackCooldown = 0.5f;
@@ -56,6 +57,30 @@ public partial class Player : CharacterBody3D
             {
                 var hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
                 chunk.BreakBlock(new BlockCoords(hoveredBlock.X, hoveredBlock.Y, hoveredBlock.Z));
+            }
+        }
+    }
+
+    private const float _placeCooldown = 0.2f;
+    private float _lastPlaceTime = 0;
+    private void HandlePlaceBlock()
+    {
+        if (
+            !Input.IsActionPressed("interact") ||
+            !_rayCast.IsColliding() ||
+            Time.GetTicksMsec() - _lastPlaceTime < (_placeCooldown * 1000)
+        )
+        {
+            return;
+        }
+        _lastPlaceTime = Time.GetTicksMsec();
+        if (_rayCast.GetCollider() is StaticBody3D body)
+        {
+            if (body.GetParent() is Chunk.Chunk chunk)
+            {
+                var hoveredBlock = HitToBlockCoords(_rayCast.GetCollisionPoint(), _rayCast.GetCollisionNormal());
+                Vector3I newBlockCoords = hoveredBlock + (Vector3I)_rayCast.GetCollisionNormal();
+                chunk.PlaceBlock(new BlockCoords(newBlockCoords.X, newBlockCoords.Y, newBlockCoords.Z));
             }
         }
     }

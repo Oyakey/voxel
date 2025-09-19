@@ -106,6 +106,12 @@ public partial class Chunk : MeshInstance3D
         Rerender();
     }
 
+    public void PlaceBlock(BlockCoords coords)
+    {
+        _chunkData.Place(coords);
+        Rerender();
+    }
+
     private void RenderBlocks()
     {
         // We need to check what blocks should be rendered

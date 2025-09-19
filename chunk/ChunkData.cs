@@ -47,7 +47,15 @@ public class ChunkData(ChunkCoords coords)
 
     public void Break(BlockCoords block)
     {
+        if (_blocks.ContainsKey(block))
+            _blocks[block] = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
         _blocks.TryAdd(block, new BlockData(new Vector3(0, 0, 0), BlockType.Air));
+    }
+    public void Place(BlockCoords block)
+    {
+        if (_blocks.ContainsKey(block))
+            _blocks[block] = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
+        _blocks.TryAdd(block, new BlockData(new Vector3(0, 0, 0), BlockType.Stone));
     }
     public bool CanBreakBlock(BlockCoords block)
     {
@@ -91,5 +99,10 @@ public class ChunkData(ChunkCoords coords)
     {
         int scale = 4;
         return noiseGenerator.Noise(position.X / scale, position.Z / scale);
+    }
+
+    private void calculateFacesToRender()
+    {
+
     }
 }
