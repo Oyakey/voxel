@@ -57,10 +57,10 @@ public class MeshRenderer
             // Towards negative Z
             case BlockDirection.North:
                 _vertices.AddRange([
-                    position + new Vector3(0, 0, -1),
-                    position + new Vector3(1, 0, -1),
-                    position + new Vector3(1, 1, -1),
-                    position + new Vector3(0, 1, -1),
+                    position + new Vector3(0, 0, 0),
+                    position + new Vector3(1, 0, 0),
+                    position + new Vector3(1, 1, 0),
+                    position + new Vector3(0, 1, 0),
                 ]);
                 _normals.AddRange([
                     new Vector3(0, 0, -1),
@@ -82,10 +82,10 @@ public class MeshRenderer
             // Towards positive Z
             case BlockDirection.South:
                 _vertices.AddRange([
-                    position + new Vector3(0, 0, 0),
-                    position + new Vector3(1, 0, 0),
-                    position + new Vector3(1, 1, 0),
-                    position + new Vector3(0, 1, 0),
+                    position + new Vector3(0, 0, 1),
+                    position + new Vector3(1, 0, 1),
+                    position + new Vector3(1, 1, 1),
+                    position + new Vector3(0, 1, 1),
                 ]);
                 _normals.AddRange([
                     new Vector3(0, 0, 1),
@@ -106,10 +106,10 @@ public class MeshRenderer
 
             // Towards positive X
             case BlockDirection.East:
-                _vertices.Add(position + new Vector3(1, 0, 0));   // Bottom-Front  → BL
-                _vertices.Add(position + new Vector3(1, 0, -1));  // Bottom-Back   → BR
-                _vertices.Add(position + new Vector3(1, 1, -1));  // Top-Back      → TR
-                _vertices.Add(position + new Vector3(1, 1, 0));   // Top-Front     → TL
+                _vertices.Add(position + new Vector3(1, 0, 1));   // Bottom-Front  → BL
+                _vertices.Add(position + new Vector3(1, 0, 0));  // Bottom-Back   → BR
+                _vertices.Add(position + new Vector3(1, 1, 0));  // Top-Back      → TR
+                _vertices.Add(position + new Vector3(1, 1, 1));   // Top-Front     → TL
                 _normals.AddRange([
                     new Vector3(1, 0, 0),
                     new Vector3(1, 0, 0),
@@ -129,10 +129,10 @@ public class MeshRenderer
 
             // Towards negative X
             case BlockDirection.West:
-                _vertices.Add(position + new Vector3(0, 0, -1));
                 _vertices.Add(position + new Vector3(0, 0, 0));
+                _vertices.Add(position + new Vector3(0, 0, 1));
+                _vertices.Add(position + new Vector3(0, 1, 1));
                 _vertices.Add(position + new Vector3(0, 1, 0));
-                _vertices.Add(position + new Vector3(0, 1, -1));
                 _normals.AddRange([
                     new Vector3(-1, 0, 0),
                     new Vector3(-1, 0, 0),
@@ -152,10 +152,10 @@ public class MeshRenderer
 
             // Towards positive Y
             case BlockDirection.Up:
-                _vertices.Add(position + new Vector3(0, 1, -1));
-                _vertices.Add(position + new Vector3(1, 1, -1));
-                _vertices.Add(position + new Vector3(1, 1, 0));
                 _vertices.Add(position + new Vector3(0, 1, 0));
+                _vertices.Add(position + new Vector3(1, 1, 0));
+                _vertices.Add(position + new Vector3(1, 1, 1));
+                _vertices.Add(position + new Vector3(0, 1, 1));
                 _normals.AddRange([
                     new Vector3(0, 1, 0),
                     new Vector3(0, 1, 0),
@@ -175,10 +175,10 @@ public class MeshRenderer
 
             // Towards negative Y
             case BlockDirection.Down:
-                _vertices.Add(position + new Vector3(1, 0, -1));
-                _vertices.Add(position + new Vector3(0, 0, -1));
-                _vertices.Add(position + new Vector3(0, 0, 0));
                 _vertices.Add(position + new Vector3(1, 0, 0));
+                _vertices.Add(position + new Vector3(0, 0, 0));
+                _vertices.Add(position + new Vector3(0, 0, 1));
+                _vertices.Add(position + new Vector3(1, 0, 1));
                 _normals.AddRange([
                     new Vector3(0, -1, 0),
                     new Vector3(0, -1, 0),
