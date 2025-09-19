@@ -23,19 +23,26 @@ public class ChunkTest
         TestHitToBlockCoords(
             new Vector3(.2f, 1.5f, 0.0032f),
             new Vector3(0, 0, 1),
-            new Vector3I(0, 1, 0)
+            new Vector3I(0, 1, -1)
         );
 
         TestHitToBlockCoords(
             new Vector3(.2f, 1.5f, -0.0032f),
             new Vector3(0, 0, 1),
-            new Vector3I(0, 1, 0)
+            new Vector3I(0, 1, -1)
         );
 
         TestHitToBlockCoords(
-            new Vector3(.2f, 1.5f, -0.0032f),
+            new Vector3(.2f, 1.0023f, 5f),
             new Vector3(0, 1, 0),
-            new Vector3I(0, 2, -1)
+            new Vector3I(0, 0, 5)
+        );
+
+
+        TestHitToBlockCoords(
+            new Vector3(.2f, 1.0023f, 5f),
+            new Vector3(1, 0, 0),
+            new Vector3I(-1, 1, 5)
         );
     }
 
@@ -45,7 +52,7 @@ public class ChunkTest
         Vector3I expectedCoords
     )
     {
-        System.Console.WriteLine($"Hit: {hit}, Normal: {normal} should resolve to {expectedCoords}");
+        // System.Console.WriteLine($"Hit: {hit}, Normal: {normal} should resolve to {expectedCoords}");
         var blockCoords = Player.HitToBlockCoords(hit, normal);
         Assert.That(blockCoords, Is.EqualTo(expectedCoords));
     }

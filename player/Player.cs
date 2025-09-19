@@ -99,10 +99,21 @@ public partial class Player : CharacterBody3D
 
     public static Vector3I HitToBlockCoords(Vector3 hit, Vector3 normal)
     {
+        // There are three things to consider for the hit to block coords conversion:
+        // 1. The raycast can sometime hit inside a block, but the point SHOULD be near the hovered face.
+        // This is why we need to round the hit position for the axis of the normal.
+        //
+        // 2. A face can be at a different point of the grid than the block it is from. 
+        // A hit from above at (0, 1, 0) should resolve to the block at (0, 0, 0), 
+        // since it is the top face of this block that is at (0, 1, 0). It will happen everytime
+        // the hit face normal is > 0 (for X, Y and Z axis).
+        //
+        // 3. This method can't be used to resolve coordinates for a "block" smaller than 1 unit.
+        // Like doors in minecraft for example which are like .2 unit thick.
         return new Vector3I(
-            normal.X == 0 ? Mathf.FloorToInt(hit.X) : Mathf.RoundToInt(hit.X),
-            normal.Y == 0 ? Mathf.FloorToInt(hit.Y) : Mathf.RoundToInt(hit.Y),
-            normal.Z == 0 ? Mathf.FloorToInt(hit.Z) : Mathf.RoundToInt(hit.Z)
+            normal.X == 0 ? Mathf.FloorToInt(hit.X) : Mathf.RoundToInt(normal.X < 0 ? hit.X : hit.X - 1),
+            normal.Y == 0 ? Mathf.FloorToInt(hit.Y) : Mathf.RoundToInt(normal.Y < 0 ? hit.Y : hit.Y - 1),
+            normal.Z == 0 ? Mathf.FloorToInt(hit.Z) : Mathf.RoundToInt(normal.Z < 0 ? hit.Z : hit.Z - 1)
         );
     }
 
