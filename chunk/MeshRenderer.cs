@@ -10,6 +10,7 @@ public class MeshRenderer
     private readonly List<Vector2> _uvs = [];
     private readonly List<Vector3> _normals = [];
     private readonly List<int> _indices = [];
+    private readonly List<Color> _colors = [];
 
     public Godot.Collections.Array GetSurfaceArray()
     {
@@ -20,6 +21,7 @@ public class MeshRenderer
         surfaceArray[(int)Mesh.ArrayType.TexUV] = _uvs.ToArray();
         surfaceArray[(int)Mesh.ArrayType.Normal] = _normals.ToArray();
         surfaceArray[(int)Mesh.ArrayType.Index] = _indices.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Color] = _colors.ToArray();
 
         return surfaceArray;
     }
@@ -32,15 +34,37 @@ public class MeshRenderer
         _indices.Clear();
     }
 
-    public readonly Vector2I grassBlockTop = new(8, 40);
+    public readonly Vector2I grassBlockTop = new(25, 36);
+    // public readonly Vector2I grassBlockTop = new(8, 40);
     // public readonly Vector2I grassBlockTop = new(38, 36);
     public readonly Vector2I grassBlockSide = new(6, 40);
     // public readonly Vector2I grassBlockSide = new(22, 36);
     public readonly Vector2I dirt = new(7, 40);
     // public readonly Vector2I dirt = new(11, 32);
-    public readonly Vector2I atlasSize = new(128, 64);
+    public static readonly Vector2I AtlasSize = new(128, 64);
 
-    public void GenerateQuad(Vector3 position, BlockDirection direction = BlockDirection.South)
+    // NOTE: This constructor is probably useless and could be removed.
+    public void GenerateQuad(
+        Vector3 position,
+        BlockDirection direction
+    )
+    {
+        GenerateQuad(position, direction, new(40, 40));
+    }
+    public void GenerateQuad(
+        Vector3 position,
+        BlockDirection direction,
+        Vector2I textCoord
+    )
+    {
+        GenerateQuad(position, direction, textCoord, Colors.White);
+    }
+    public void GenerateQuad(
+        Vector3 position,
+        BlockDirection direction,
+        Vector2I textCoord,
+        Color color
+    )
     {
         var index = _vertices.Count;
 
@@ -68,7 +92,7 @@ public class MeshRenderer
                     new Vector3(0, 0, -1),
                     new Vector3(0, 0, -1),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
+                _uvs.AddRange(GetUVsFromAtlas(textCoord, AtlasSize));
                 _indices.AddRange([
                     index,
                     index + 1,
@@ -93,7 +117,7 @@ public class MeshRenderer
                     new Vector3(0, 0, 1),
                     new Vector3(0, 0, 1),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
+                _uvs.AddRange(GetUVsFromAtlas(textCoord, AtlasSize));
                 _indices.AddRange([
                     index + 2,
                     index + 1,
@@ -116,7 +140,7 @@ public class MeshRenderer
                     new Vector3(1, 0, 0),
                     new Vector3(1, 0, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
+                _uvs.AddRange(GetUVsFromAtlas(textCoord, AtlasSize));
                 _indices.AddRange([
                     index + 2,
                     index + 1,
@@ -139,7 +163,7 @@ public class MeshRenderer
                     new Vector3(-1, 0, 0),
                     new Vector3(-1, 0, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(grassBlockSide, atlasSize));
+                _uvs.AddRange(GetUVsFromAtlas(textCoord, AtlasSize));
                 _indices.AddRange([
                     index + 2,
                     index + 1,
@@ -162,7 +186,7 @@ public class MeshRenderer
                     new Vector3(0, 1, 0),
                     new Vector3(0, 1, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(grassBlockTop, atlasSize));
+                _uvs.AddRange(GetUVsFromAtlas(textCoord, AtlasSize));
                 _indices.AddRange([
                     index,
                     index + 1,
@@ -185,7 +209,7 @@ public class MeshRenderer
                     new Vector3(0, -1, 0),
                     new Vector3(0, -1, 0),
                 ]);
-                _uvs.AddRange(GetUVsFromAtlas(dirt, atlasSize));
+                _uvs.AddRange(GetUVsFromAtlas(textCoord, AtlasSize));
                 _indices.AddRange([
                     index,
                     index + 1,
@@ -196,6 +220,11 @@ public class MeshRenderer
                 ]);
                 break;
         }
+        // 1 per vertex.
+        _colors.Add(color);
+        _colors.Add(color);
+        _colors.Add(color);
+        _colors.Add(color);
     }
 
     private static Vector2[] GetUVsFromAtlas(Vector2I tileCoords, Vector2I tilesInAtlas)

@@ -33,7 +33,6 @@ public partial class Chunk : MeshInstance3D
         var x = chunkData.Coords.X;
         var y = chunkData.Coords.Y;
         chunk.Position = new Vector3(x * SIDE_LENGTH, 0, y * SIDE_LENGTH);
-        // chunk.renderBlocks();
         return chunk;
     }
 
@@ -157,7 +156,11 @@ public partial class Chunk : MeshInstance3D
                     if (!IsBlockOpaque(northBlock))
                         renderMode += (int)BlockDirection.North;
 
-                    AddFace(new BlockCoords(x, y, z), block, renderMode);
+                    IBlockType blockType = new Stone();
+                    if (y > -4)
+                        blockType = (renderMode & (int)BlockDirection.Up) != 0 ? new Grass() : new Dirt();
+
+                    AddFace(new BlockCoords(x, y, z), block, renderMode, blockType);
                 }
             }
         }
@@ -175,6 +178,7 @@ public partial class Chunk : MeshInstance3D
             TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest,
             // Big performance gains when using this instead of PerPixel.
             ShadingMode = BaseMaterial3D.ShadingModeEnum.PerVertex,
+            VertexColorUseAsAlbedo = true,
             // DisableReceiveShadows = true,
         };
 
@@ -187,7 +191,7 @@ public partial class Chunk : MeshInstance3D
     // This old system will be removed once mesh generation is finished.
     // It should increase performance by a lot. And allow mesh generation to be done in a separate thread.
     // The tradeoff is that we cannot use godot nodes anymore.
-    private void AddFace(BlockCoords coords, BlockData block, int renderMode)
+    private void AddFace(BlockCoords coords, BlockData block, int renderMode, IBlockType blockType)
     {
         if (renderMode == 0)
             return;
@@ -198,17 +202,41 @@ public partial class Chunk : MeshInstance3D
         var blockPosition = new Vector3(coords.X, coords.Y, coords.Z);
 
         if ((renderMode & (int)BlockDirection.East) != 0)
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.East);
+        {
+            var texture = blockType.Texture.GetDirectionTexture(BlockDirection.East);
+            var color = blockType.Color.GetDirectionColor(BlockDirection.East);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.East, texture, color);
+        }
         if ((renderMode & (int)BlockDirection.West) != 0)
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.West);
+        {
+            var texture = blockType.Texture.GetDirectionTexture(BlockDirection.West);
+            var color = blockType.Color.GetDirectionColor(BlockDirection.West);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.West, texture, color);
+        }
         if ((renderMode & (int)BlockDirection.Up) != 0)
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Up);
+        {
+            var texture = blockType.Texture.GetDirectionTexture(BlockDirection.Up);
+            var color = blockType.Color.GetDirectionColor(BlockDirection.Up);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Up, texture, color);
+        }
         if ((renderMode & (int)BlockDirection.Down) != 0)
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Down);
+        {
+            var texture = blockType.Texture.GetDirectionTexture(BlockDirection.Down);
+            var color = blockType.Color.GetDirectionColor(BlockDirection.Down);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Down, texture, color);
+        }
         if ((renderMode & (int)BlockDirection.South) != 0)
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.South);
+        {
+            var texture = blockType.Texture.GetDirectionTexture(BlockDirection.South);
+            var color = blockType.Color.GetDirectionColor(BlockDirection.South);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.South, texture, color);
+        }
         if ((renderMode & (int)BlockDirection.North) != 0)
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.North);
+        {
+            var texture = blockType.Texture.GetDirectionTexture(BlockDirection.North);
+            var color = blockType.Color.GetDirectionColor(BlockDirection.North);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.North, texture, color);
+        }
     }
 
     private static bool IsBlockOpaque(BlockData blockData)

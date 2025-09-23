@@ -1,7 +1,14 @@
 ﻿using Godot;
+using Voxel.Blocks;
 
-public partial class Stone
+public partial class Stone : IBlockType
 {
-    public static readonly CompressedTexture2D texture = ResourceLoader
-      .Load<CompressedTexture2D>("res://resources/images/block/stone.png");
+    public BlockTexture Texture { get; set; }
+    public BlockColor Color { get; set; }
+
+    public Stone()
+    {
+        Texture = new BlockTexture(new Vector2I(40, 40));
+        Color = new BlockColor(Colors.White);
+    }
 }
