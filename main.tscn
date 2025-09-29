@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://xxw4os14nv7l"]
+[gd_scene load_steps=13 format=3 uid="uid://xxw4os14nv7l"]
 
 [ext_resource type="Script" uid="uid://37pcrh44jucl" path="res://Main.cs" id="1_h2yge"]
 [ext_resource type="PackedScene" uid="uid://dyt6cdtojj6b2" path="res://player/player.tscn" id="1_ig7tw"]
 [ext_resource type="Texture2D" uid="uid://da68t27ltij76" path="res://resources/images/crosshair.png" id="4_1bvp3"]
 [ext_resource type="FontFile" uid="uid://dbmsc7m8uxoog" path="res://resources/fonts/Minecraft.ttf" id="5_lquwl"]
 [ext_resource type="Script" uid="uid://cmio7mdod1ug5" path="res://debug/CoordText.cs" id="6_7mycd"]
+[ext_resource type="Shader" uid="uid://ch3jgmb66ltc8" path="res://highlight.gdshader" id="6_272bh"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -22,6 +23,14 @@ glow_enabled = true
 [sub_resource type="LabelSettings" id="LabelSettings_7mycd"]
 font = ExtResource("5_lquwl")
 font_size = 32
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5vw27"]
+render_priority = 0
+shader = ExtResource("6_272bh")
+shader_parameter/showBorder = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_kek77"]
+material = SubResource("ShaderMaterial_5vw27")
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_h2yge")
@@ -84,3 +93,6 @@ offset_bottom = 126.0
 text = "XYZ: 0.000 / 0.000 / 0.000"
 label_settings = SubResource("LabelSettings_7mycd")
 script = ExtResource("6_7mycd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("QuadMesh_kek77")

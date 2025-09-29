@@ -239,7 +239,7 @@ public partial class Chunk : MeshInstance3D
         }
     }
 
-    private static bool IsBlockOpaque(BlockData blockData)
+    public static bool IsBlockOpaque(BlockData blockData)
     {
         // Hacky workaround to avoid rendering blocks at the bottom of the chunk.
         // Remove when occlusion culling is implemented.

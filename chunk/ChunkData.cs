@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Godot;
+using Voxel.Blocks;
 using Voxel.Utils;
 
 namespace Voxel.Chunk;
@@ -104,5 +105,42 @@ public class ChunkData(ChunkCoords coords)
     private void calculateFacesToRender()
     {
 
+    }
+}
+
+public class BlockDataToBinarySlices
+{
+    private readonly BlockData[] _blocks;
+    private readonly int[] _xSlices = [6272];
+    private readonly int[] _zSlices = [6272];
+    private readonly int[] _ySlices = [256];
+
+    public BlockDataToBinarySlices(BlockData[] blocks)
+    {
+        _blocks = blocks;
+        BuildBinarySlice();
+    }
+
+    private void BuildBinarySlice()
+    {
+        // Array is read sequencially so we can just append a bit and not care about the order.
+        foreach (BlockData block in _blocks)
+        {
+            var x = (int)block.Position.X;
+            var y = (int)block.Position.Y;
+            var z = (int)block.Position.Z;
+
+            var bitValue = Chunk.IsBlockOpaque(block) ? 1 : 0;
+
+            _xSlices[Build2DArrayIndex(y, x)] <<= 1;
+            _xSlices[Build2DArrayIndex(y, x)] |= bitValue;
+
+            _zSlices[Build2DArrayIndex(y, z)] <<= 1;
+            _zSlices[Build2DArrayIndex(y, z)] |= bitValue;
+        }
+    }
+    private static int Build2DArrayIndex(int a, int b)
+    {
+        return a << 4 + b;
     }
 }
