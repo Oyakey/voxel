@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using Godot;
-using Voxel.Blocks;
 using Voxel.Utils;
 
 namespace Voxel.Chunk;
 
-public class ChunkData(ChunkCoords coords)
+public class ChunkData(Vector3I coords)
 {
-    public ChunkCoords Coords { get; private set; } = coords;
+    public Vector3I Coords { get; private set; } = coords;
 
     public readonly Dictionary<BlockCoords, BlockData> _blocks = [];
     private readonly PerlinNoise noiseGenerator = new();
@@ -102,10 +101,21 @@ public class ChunkData(ChunkCoords coords)
         return noiseGenerator.Noise(position.X / scale, position.Z / scale);
     }
 
-    private void calculateFacesToRender()
+    public static int GetBlockIndex(BlockCoords blockCoords)
     {
-
+        var x = blockCoords.X;
+        var y = blockCoords.Y;
+        var z = blockCoords.Z;
+        return y << 8 | z << 4 | x;
     }
+    public static BlockCoords GetBlockCoords(int index)
+    {
+        var x = index & 0xF;
+        var y = (index >> 8) & 0xFF;
+        var z = (index >> 4) & 0xF;
+        return new BlockCoords(x, y, z);
+    }
+
 }
 
 public class BlockDataToBinarySlices

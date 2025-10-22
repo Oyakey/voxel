@@ -21,8 +21,11 @@ public class ChunkGenerator(Node3D chunkParent)
     {
         if (_chunks.ContainsKey(chunkCoords))
             return;
-        var chunk = new ChunkData(chunkCoords);
-        _chunks.Add(chunkCoords, chunk);
+        for (var i = 0; i < ChunkColumn.SLICES_COUNT; i++)
+        {
+            var chunk = new ChunkData(new Vector3I(chunkCoords.X, i, chunkCoords.Y));
+            _chunks.Add(chunkCoords, chunk);
+        }
     }
 
     public void RenderChunk(ChunkCoords chunkCoords)
@@ -51,8 +54,10 @@ public class ChunkGenerator(Node3D chunkParent)
     {
         var chunk = Chunk.Spawn(chunkData);
 
-        _renderedChunks.Add(chunkData.Coords, chunk);
-        _renderingChunks.Remove(chunkData.Coords);
+        var index = new ChunkCoords(chunkData.Coords.X, chunkData.Coords.Z);
+
+        _renderedChunks.Add(index, chunk);
+        _renderingChunks.Remove(index);
 
         _chunksToRender.Add(chunk);
     }
