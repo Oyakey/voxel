@@ -62,7 +62,7 @@ public partial class Chunk : MeshInstance3D
 
         if (distanceXFromPlayer > Main.RenderDistance || distanceYFromPlayer > Main.RenderDistance)
         {
-            Main.ChunkGenerator.RemoveChunk(_chunkData.Coords);
+            Main.ChunkGenerator.RemoveChunk(new ChunkCoords(_chunkData.Coords.X, _chunkData.Coords.Z));
         }
     }
 
