@@ -69,8 +69,8 @@ public class ChunkGenerator(Node3D chunkParent)
     public static ChunkCoords GetChunkCoordsByPosition(Vector3 position)
     {
         return new ChunkCoords(
-           Mathf.FloorToInt(position.X / Chunk.SIDE_LENGTH),
-           Mathf.FloorToInt(position.Z / Chunk.SIDE_LENGTH)
+           Mathf.FloorToInt(position.X / Chunk.CHUNK_LENGTH),
+           Mathf.FloorToInt(position.Z / Chunk.CHUNK_LENGTH)
        );
     }
 

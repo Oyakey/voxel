@@ -8,9 +8,7 @@ namespace Voxel.Chunk;
 
 public partial class Chunk : MeshInstance3D
 {
-    public const int SIDE_LENGTH = 16;
-    public const int MIN_HEIGHT = -64;
-    public const int MAX_HEIGHT = 192;
+    public const int CHUNK_LENGTH = 16;
 
     private long _worldSeed = 123456789;
     private long _chunkSeed;
@@ -32,7 +30,7 @@ public partial class Chunk : MeshInstance3D
         chunk._chunkData = chunkData;
         var x = chunkData.Coords.X;
         var y = chunkData.Coords.Y;
-        chunk.Position = new Vector3(x * SIDE_LENGTH, 0, y * SIDE_LENGTH);
+        chunk.Position = new Vector3(x * CHUNK_LENGTH, 0, y * CHUNK_LENGTH);
         return chunk;
     }
 
@@ -121,11 +119,11 @@ public partial class Chunk : MeshInstance3D
         // We also need to make this operation asynchronous so that it won't freeze the game
         _isRendering = true;
 
-        for (var x = 0; x < SIDE_LENGTH; x++)
+        for (var x = 0; x < CHUNK_LENGTH; x++)
         {
-            for (var z = 0; z < SIDE_LENGTH; z++)
+            for (var z = 0; z < CHUNK_LENGTH; z++)
             {
-                for (var y = MIN_HEIGHT; y < MAX_HEIGHT; y++)
+                for (var y = 0; y < CHUNK_LENGTH; y++)
                 {
                     int renderMode = 0;
 

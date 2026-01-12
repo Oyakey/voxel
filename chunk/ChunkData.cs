@@ -16,17 +16,17 @@ public class ChunkData(ChunkCoords coords)
         var blockWorldCoords = LocalToWorld(blockCoords);
 
         var chunkCoords = new ChunkCoords(
-            Mathf.FloorToInt(blockWorldCoords.X / Chunk.SIDE_LENGTH),
-            Mathf.FloorToInt(blockWorldCoords.Z / Chunk.SIDE_LENGTH)
+            Mathf.FloorToInt(blockWorldCoords.X / Chunk.CHUNK_LENGTH),
+            Mathf.FloorToInt(blockWorldCoords.Z / Chunk.CHUNK_LENGTH)
         );
 
         var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
         if (chunk != null)
         {
             var localBlockCoords = new BlockCoords(
-                Math.Mod(blockCoords.X, Chunk.SIDE_LENGTH),
+                Math.Mod(blockCoords.X, Chunk.CHUNK_LENGTH),
                 blockCoords.Y,
-                Math.Mod(blockCoords.Z, Chunk.SIDE_LENGTH)
+                Math.Mod(blockCoords.Z, Chunk.CHUNK_LENGTH)
             );
 
             var block = chunk.GetLocalBlock(localBlockCoords);
@@ -77,15 +77,15 @@ public class ChunkData(ChunkCoords coords)
 
     private BlockCoords LocalToWorld(BlockCoords blockCoords)
     {
-        return new BlockCoords(blockCoords.X + Coords.X * Chunk.SIDE_LENGTH, blockCoords.Y, blockCoords.Z + Coords.Y * Chunk.SIDE_LENGTH);
+        return new BlockCoords(blockCoords.X + Coords.X * Chunk.CHUNK_LENGTH, blockCoords.Y, blockCoords.Z + Coords.Y * Chunk.CHUNK_LENGTH);
     }
     private void GenerateBlocks()
     {
-        for (var x = 0; x < Chunk.SIDE_LENGTH; x++)
+        for (var x = 0; x < Chunk.CHUNK_LENGTH; x++)
         {
-            for (var z = 0; z < Chunk.SIDE_LENGTH; z++)
+            for (var z = 0; z < Chunk.CHUNK_LENGTH; z++)
             {
-                for (var y = Chunk.MIN_HEIGHT; y < Chunk.MAX_HEIGHT; y++)
+                for (var y = 0; y < Chunk.CHUNK_LENGTH; y++)
                     _blocks.Add(new BlockCoords(x, y, z), GetBlockData(new Vector3(x, y, z)));
             }
         }
