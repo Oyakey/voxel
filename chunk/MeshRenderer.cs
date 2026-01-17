@@ -26,14 +26,6 @@ public class MeshRenderer
         return surfaceArray;
     }
 
-    public void Clear()
-    {
-        _vertices.Clear();
-        _uvs.Clear();
-        _normals.Clear();
-        _indices.Clear();
-    }
-
     public readonly Vector2I grassBlockTop = new(25, 36);
     // public readonly Vector2I grassBlockTop = new(8, 40);
     // public readonly Vector2I grassBlockTop = new(38, 36);
@@ -43,14 +35,6 @@ public class MeshRenderer
     // public readonly Vector2I dirt = new(11, 32);
     public static readonly Vector2I AtlasSize = new(128, 64);
 
-    // NOTE: This constructor is probably useless and could be removed.
-    public void GenerateQuad(
-        Vector3 position,
-        BlockDirection direction
-    )
-    {
-        GenerateQuad(position, direction, new(40, 40));
-    }
     public void GenerateQuad(
         Vector3 position,
         BlockDirection direction,

@@ -5,10 +5,6 @@ namespace Voxel;
 
 public partial class Main : Node3D
 {
-    private long _baseSeed = 123456789;
-    private long _worldSeed;
-    private long _chunkSeed = 0;
-
     private static ChunkGenerator _chunkGenerator;
     private static Node3D _chunkParent;
 

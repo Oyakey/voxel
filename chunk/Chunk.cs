@@ -263,18 +263,4 @@ public partial class Chunk : MeshInstance3D
     {
         return blockData != null && blockData.Type != BlockType.Air;
     }
-
-    private static Vector2[] GetUVsFromAtlas(Vector2I tileCoords, Vector2I tilesInAtlas)
-    {
-        float tileWidth = 1f / tilesInAtlas.X;
-        float tileHeight = 1f / tilesInAtlas.Y;
-        Vector2 offset = new Vector2(tileCoords.X * tileWidth, tileCoords.Y * tileHeight);
-
-        return [
-            offset + new Vector2(0, tileHeight),           // Bottom-left
-            offset + new Vector2(tileWidth, tileHeight),   // Bottom-right
-            offset + new Vector2(tileWidth, 0),            // Top-right
-            offset + new Vector2(0, 0)                     // Top-left
-        ];
-    }
 }
