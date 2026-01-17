@@ -12,8 +12,6 @@ public partial class Main : Node3D
     private static ChunkGenerator _chunkGenerator;
     private static Node3D _chunkParent;
 
-    private static readonly PerlinNoise noiseGenerator = new();
-
     public static ChunkGenerator ChunkGenerator => _chunkGenerator;
 
     public static ChunkCoords PlayerCurrentChunk { get; set; }
@@ -21,28 +19,12 @@ public partial class Main : Node3D
 
     public const int RenderDistance = 5;
 
-    public static float WorldGenerator(Vector3 position)
-    {
-        int scale = 4;
-        return noiseGenerator.Noise(position.X / scale, position.Z / scale);
-    }
-
-    public void GenerateWorldSeed(float x, float y)
-    {
-        _worldSeed = _baseSeed;
-        _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
-        _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
-        _worldSeed = _baseSeed;
-        _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
-        _worldSeed *= _worldSeed * 6364136223846793005L + 1442695040888963407L;
-    }
-
     private void _ready()
     {
         var chunkParent = GetNode<Node3D>("Chunks");
         _chunkParent = chunkParent;
-        _chunkGenerator = new ChunkGenerator(chunkParent);
-        ChunkGenerator.RenderChunk(new ChunkCoords(0, 0));
+        _chunkGenerator = new ChunkGenerator(chunkParent, RenderDistance);
+        ChunkGenerator.RenderChunk(new ChunkCoords(0, 0, 0));
     }
 
     private void _process(float _)

@@ -8,6 +8,11 @@ namespace Voxel.Chunk;
 
 public partial class Chunk : MeshInstance3D
 {
+    public const int MIN_HEIGHT = -64;
+    public const int MAX_HEIGHT = 192;
+    public const int Y_CHUNKS = 16;
+    public const int LOWEST_CHUNK = -4;
+    public const int HIGHEST_CHUNK = 12;
     public const int CHUNK_LENGTH = 16;
 
     private long _worldSeed = 123456789;
@@ -30,7 +35,8 @@ public partial class Chunk : MeshInstance3D
         chunk._chunkData = chunkData;
         var x = chunkData.Coords.X;
         var y = chunkData.Coords.Y;
-        chunk.Position = new Vector3(x * CHUNK_LENGTH, 0, y * CHUNK_LENGTH);
+        var z = chunkData.Coords.Z;
+        chunk.Position = new Vector3(x * CHUNK_LENGTH, y * CHUNK_LENGTH, z * CHUNK_LENGTH);
         return chunk;
     }
 
@@ -53,12 +59,14 @@ public partial class Chunk : MeshInstance3D
     {
         AddMeshToScene();
 
-        var chunkCoords = Main.PlayerCurrentChunk;
+        var playerChunkCoords = Main.PlayerCurrentChunk;
 
-        var distanceXFromPlayer = Math.Abs(_chunkData.Coords.X - chunkCoords.X);
-        var distanceYFromPlayer = Math.Abs(_chunkData.Coords.Y - chunkCoords.Y);
+        var distanceXFromPlayer = Math.Abs(_chunkData.Coords.X - playerChunkCoords.X);
+        // var distanceYFromPlayer = Math.Abs(_chunkData.Coords.Y - playerChunkCoords.Y);
+        var distanceZFromPlayer = Math.Abs(_chunkData.Coords.Z - playerChunkCoords.Z);
 
-        if (distanceXFromPlayer > Main.RenderDistance || distanceYFromPlayer > Main.RenderDistance)
+        // if (distanceXFromPlayer > Main.RenderDistance || distanceZFromPlayer > Main.RenderDistance || distanceYFromPlayer > Main.RenderDistance)
+        if (distanceXFromPlayer > Main.RenderDistance || distanceZFromPlayer > Main.RenderDistance)
         {
             Main.ChunkGenerator.RemoveChunk(_chunkData.Coords);
         }
@@ -118,6 +126,7 @@ public partial class Chunk : MeshInstance3D
         // 3. Theses blocks should have only their visible faces rendered
         // We also need to make this operation asynchronous so that it won't freeze the game
         _isRendering = true;
+        var hasAddedAFace = false;
 
         for (var x = 0; x < CHUNK_LENGTH; x++)
         {
@@ -158,16 +167,28 @@ public partial class Chunk : MeshInstance3D
                     if (y > -4)
                         blockType = (renderMode & (int)BlockDirection.Up) != 0 ? new Grass() : new Dirt();
 
-                    AddFace(new BlockCoords(x, y, z), block, renderMode, blockType);
+                    if (AddFace(new BlockCoords(x, y, z), block, renderMode, blockType))
+                    {
+                        hasAddedAFace = true;
+                    }
                 }
             }
         }
 
+        if (!hasAddedAFace)
+        {
+            return;
+        }
         var arrMesh = new ArrayMesh();
         var surfaceArray = _meshRenderer.GetSurfaceArray();
 
         // No blendshapes, lods, or compression used.
         arrMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, surfaceArray);
+
+        if (arrMesh.GetSurfaceCount() <= 0)
+        {
+            return;
+        }
 
         StandardMaterial3D atlasMaterial = new()
         {
@@ -189,13 +210,13 @@ public partial class Chunk : MeshInstance3D
     // This old system will be removed once mesh generation is finished.
     // It should increase performance by a lot. And allow mesh generation to be done in a separate thread.
     // The tradeoff is that we cannot use godot nodes anymore.
-    private void AddFace(BlockCoords coords, BlockData block, int renderMode, IBlockType blockType)
+    private bool AddFace(BlockCoords coords, BlockData block, int renderMode, IBlockType blockType)
     {
         if (renderMode == 0)
-            return;
+            return false;
 
         if (block.Type == BlockType.Air)
-            return;
+            return false;
 
         var blockPosition = new Vector3(coords.X, coords.Y, coords.Z);
 
@@ -235,15 +256,11 @@ public partial class Chunk : MeshInstance3D
             var color = blockType.Color.GetDirectionColor(BlockDirection.North);
             _meshRenderer.GenerateQuad(blockPosition, BlockDirection.North, texture, color);
         }
+        return true;
     }
 
     private static bool IsBlockOpaque(BlockData blockData)
     {
-        // Hacky workaround to avoid rendering blocks at the bottom of the chunk.
-        // Remove when occlusion culling is implemented.
-        if (blockData == null)
-            return true;
-
         return blockData != null && blockData.Type != BlockType.Air;
     }
 

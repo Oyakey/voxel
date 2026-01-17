@@ -3,12 +3,13 @@ using Godot;
 
 namespace Voxel.Chunk;
 
-public class ChunkGenerator(Node3D chunkParent)
+public class ChunkGenerator(Node3D chunkParent, int renderDistance)
 {
     private readonly Dictionary<ChunkCoords, ChunkData> _chunks = [];
     private readonly Dictionary<ChunkCoords, Chunk> _renderedChunks = [];
     private readonly Dictionary<ChunkCoords, bool> _renderingChunks = [];
     private readonly Node3D _chunkParent = chunkParent;
+    private readonly int _renderDistance = renderDistance;
     public List<Chunk> _chunksToRender = [];
 
     public ChunkData GetChunk(ChunkCoords chunkCoords)
@@ -27,7 +28,7 @@ public class ChunkGenerator(Node3D chunkParent)
 
     public void RenderChunk(ChunkCoords chunkCoords)
     {
-        if (_renderedChunks.ContainsKey(chunkCoords) || _renderingChunks.ContainsKey(chunkCoords))
+        if (_renderedChunks.ContainsKey(chunkCoords) || _renderingChunks.ContainsKey(chunkCoords) || chunkCoords.Y > Chunk.MAX_HEIGHT / Chunk.CHUNK_LENGTH || chunkCoords.Y < Chunk.MIN_HEIGHT / Chunk.CHUNK_LENGTH)
             return;
 
         _renderingChunks.Add(chunkCoords, true);
@@ -37,7 +38,10 @@ public class ChunkGenerator(Node3D chunkParent)
         {
             for (var y = -1; y <= 1; y++)
             {
-                GenerateChunk(new ChunkCoords(chunkCoords.X + x, chunkCoords.Y + y));
+                for (var z = -1; z <= 1; z++)
+                {
+                    GenerateChunk(new ChunkCoords(chunkCoords.X + x, chunkCoords.Y + y, chunkCoords.Z + z));
+                }
             }
         }
 
@@ -70,6 +74,7 @@ public class ChunkGenerator(Node3D chunkParent)
     {
         return new ChunkCoords(
            Mathf.FloorToInt(position.X / Chunk.CHUNK_LENGTH),
+           Mathf.FloorToInt(position.Y / Chunk.CHUNK_LENGTH),
            Mathf.FloorToInt(position.Z / Chunk.CHUNK_LENGTH)
        );
     }
@@ -82,13 +87,29 @@ public class ChunkGenerator(Node3D chunkParent)
 
     public void RenderChunksAround(ChunkCoords chunkCoords)
     {
-        var renderDistance = Main.RenderDistance;
-        for (var x = -renderDistance; x <= renderDistance; x++)
+        var renderDistanceChunks = CalculateRenderDistanceChunks();
+        for (var x = 0; x <= renderDistanceChunks.X; x++)
         {
-            for (var y = -renderDistance; y <= renderDistance; y++)
+            for (var y = 0; y <= renderDistanceChunks.Y; y++)
             {
-                RenderChunk(new ChunkCoords(chunkCoords.X + x, chunkCoords.Y + y));
+                for (var z = 0; z <= renderDistanceChunks.Z; z++)
+                {
+                    RenderChunk(new ChunkCoords(
+                        chunkCoords.X + x - renderDistanceChunks.X / 2,
+                        y + Chunk.LOWEST_CHUNK,
+                        chunkCoords.Z + z - renderDistanceChunks.Z / 2
+                    ));
+                }
             }
         }
+    }
+
+    public Vector3I CalculateRenderDistanceChunks()
+    {
+        var distanceXZ = _renderDistance * 2 + 1;
+        return new Vector3I(
+            distanceXZ,
+            Chunk.Y_CHUNKS,
+            distanceXZ);
     }
 }

@@ -99,11 +99,12 @@ public partial class Player : CharacterBody3D
     {
         var chunkCoords = ChunkGenerator.GetChunkCoordsByPosition(Position);
         Main.PlayerCurrentChunk = chunkCoords;
-        ChunkData chunkData = Main.ChunkGenerator.GetChunk(chunkCoords);
-        if (chunkData == null)
-            return;
-
-        Main.ChunkGenerator.RenderChunksAround(chunkData.Coords);
+        // ChunkData chunkData = Main.ChunkGenerator.GetChunk(chunkCoords);
+        // if (chunkData == null)
+        //     return;
+        //
+        // Main.ChunkGenerator.RenderChunksAround(chunkData.Coords);
+        Main.ChunkGenerator.RenderChunksAround(chunkCoords);
     }
 
     private void _physics_process(float delta)

@@ -9,31 +9,31 @@ public class ChunkData(ChunkCoords coords)
     public ChunkCoords Coords { get; private set; } = coords;
 
     public readonly Dictionary<BlockCoords, BlockData> _blocks = [];
-    private readonly PerlinNoise noiseGenerator = new();
 
     public BlockData GetBlock(BlockCoords blockCoords)
     {
         var blockWorldCoords = LocalToWorld(blockCoords);
 
-        var chunkCoords = new ChunkCoords(
-            Mathf.FloorToInt(blockWorldCoords.X / Chunk.CHUNK_LENGTH),
-            Mathf.FloorToInt(blockWorldCoords.Z / Chunk.CHUNK_LENGTH)
-        );
-
-        var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
-        if (chunk != null)
-        {
-            var localBlockCoords = new BlockCoords(
-                Math.Mod(blockCoords.X, Chunk.CHUNK_LENGTH),
-                blockCoords.Y,
-                Math.Mod(blockCoords.Z, Chunk.CHUNK_LENGTH)
-            );
-
-            var block = chunk.GetLocalBlock(localBlockCoords);
-
-            if (block != null)
-                return block;
-        }
+        // var chunkCoords = new ChunkCoords(
+        //     Mathf.FloorToInt(blockWorldCoords.X / Chunk.CHUNK_LENGTH),
+        //     Mathf.FloorToInt(blockWorldCoords.Y / Chunk.CHUNK_LENGTH),
+        //     Mathf.FloorToInt(blockWorldCoords.Z / Chunk.CHUNK_LENGTH)
+        // );
+        //
+        // var chunk = Main.ChunkGenerator.GetChunk(chunkCoords);
+        // if (chunk != null)
+        // {
+        //     var localBlockCoords = new BlockCoords(
+        //         Math.Mod(blockCoords.X, Chunk.CHUNK_LENGTH),
+        //         blockCoords.Y,
+        //         Math.Mod(blockCoords.Z, Chunk.CHUNK_LENGTH)
+        //     );
+        //
+        //     var block = chunk.GetLocalBlock(localBlockCoords);
+        //
+        //     if (block != null)
+        //         return block;
+        // }
 
         // TODO: This is a temporary implementation to test the rendering of the chunks.
         var height = (int)(Mathf.Sin(blockWorldCoords.X * .1) * 10 - Mathf.Sin(blockWorldCoords.Z * .1) * 10);
@@ -42,7 +42,7 @@ public class ChunkData(ChunkCoords coords)
         // var height = Math.Mod(blockWorldCoords.X + blockWorldCoords.Z, 10) - 5;
         var stone = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
         var air = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
-        return blockCoords.Y < height ? stone : air;
+        return blockWorldCoords.Y < height ? stone : air;
     }
 
     public void Break(BlockCoords block)
@@ -62,47 +62,12 @@ public class ChunkData(ChunkCoords coords)
         return !_blocks.ContainsKey(block) || _blocks[block].Type != BlockType.Air;
     }
 
-    public BlockData GetBlockData(Vector3 position)
-    {
-        var type = BlockType.Air;
-
-        float height = WorldGenerator(position) * 8;
-
-        if (position.Y < height)
-            type = BlockType.Stone;
-
-        return new BlockData(position, type);
-    }
-
-
     private BlockCoords LocalToWorld(BlockCoords blockCoords)
     {
-        return new BlockCoords(blockCoords.X + Coords.X * Chunk.CHUNK_LENGTH, blockCoords.Y, blockCoords.Z + Coords.Y * Chunk.CHUNK_LENGTH);
-    }
-    private void GenerateBlocks()
-    {
-        for (var x = 0; x < Chunk.CHUNK_LENGTH; x++)
-        {
-            for (var z = 0; z < Chunk.CHUNK_LENGTH; z++)
-            {
-                for (var y = 0; y < Chunk.CHUNK_LENGTH; y++)
-                    _blocks.Add(new BlockCoords(x, y, z), GetBlockData(new Vector3(x, y, z)));
-            }
-        }
-    }
-    private BlockData GetLocalBlock(BlockCoords blockCoords)
-    {
-        _blocks.TryGetValue(blockCoords, out var block);
-        return block;
-    }
-    private float WorldGenerator(Vector3 position)
-    {
-        int scale = 4;
-        return noiseGenerator.Noise(position.X / scale, position.Z / scale);
-    }
-
-    private void calculateFacesToRender()
-    {
-
+        return new BlockCoords(
+                blockCoords.X + Coords.X * Chunk.CHUNK_LENGTH,
+                blockCoords.Y + Coords.Y * Chunk.CHUNK_LENGTH,
+                blockCoords.Z + Coords.Z * Chunk.CHUNK_LENGTH
+        );
     }
 }
