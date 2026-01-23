@@ -98,6 +98,8 @@ public partial class Player : CharacterBody3D
     private void HandleLoadChunk()
     {
         var chunkCoords = ChunkGenerator.GetChunkCoordsByPosition(Position);
+        if (Main.PlayerCurrentChunk == chunkCoords)
+            return;
         Main.PlayerCurrentChunk = chunkCoords;
         // ChunkData chunkData = Main.ChunkGenerator.GetChunk(chunkCoords);
         // if (chunkData == null)

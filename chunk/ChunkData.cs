@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Godot;
 using Voxel.Utils;
 
@@ -8,7 +9,7 @@ public class ChunkData(ChunkCoords coords)
 {
     public ChunkCoords Coords { get; private set; } = coords;
 
-    public readonly Dictionary<BlockCoords, BlockData> _blocks = [];
+    private readonly BlockData[] _blocks = new BlockData[Chunk.BLOCKS_PER_CHUNK];
 
     public BlockData GetBlock(BlockCoords blockCoords)
     {
@@ -37,29 +38,44 @@ public class ChunkData(ChunkCoords coords)
 
         // TODO: This is a temporary implementation to test the rendering of the chunks.
         var height = (int)(Mathf.Sin(blockWorldCoords.X * .1) * 10 - Mathf.Sin(blockWorldCoords.Z * .1) * 10);
-        // var height = 0;
-        // var height = Math.Mod(blockWorldCoords.Z, 10) - 5;
-        // var height = Math.Mod(blockWorldCoords.X + blockWorldCoords.Z, 10) - 5;
-        var stone = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
-        var air = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
+
+        var stone = new BlockData(BlockType.Stone);
+        var air = new BlockData(BlockType.Air);
         return blockWorldCoords.Y < height ? stone : air;
     }
 
     public void Break(BlockCoords block)
     {
-        if (_blocks.ContainsKey(block))
-            _blocks[block] = new BlockData(new Vector3(0, 0, 0), BlockType.Air);
-        _blocks.TryAdd(block, new BlockData(new Vector3(0, 0, 0), BlockType.Air));
+        var index = GetIndex(block);
+        if (!IsValidIndex(index))
+            return;
+        _blocks[index] = new BlockData(BlockType.Air);
     }
+
     public void Place(BlockCoords block)
     {
-        if (_blocks.ContainsKey(block))
-            _blocks[block] = new BlockData(new Vector3(0, 0, 0), BlockType.Stone);
-        _blocks.TryAdd(block, new BlockData(new Vector3(0, 0, 0), BlockType.Stone));
+        var index = GetIndex(block);
+        if (!IsValidIndex(index))
+            return;
+        _blocks[index] = new BlockData(BlockType.Stone);
     }
+
     public bool CanBreakBlock(BlockCoords block)
     {
-        return !_blocks.ContainsKey(block) || _blocks[block].Type != BlockType.Air;
+        var index = GetIndex(block);
+        if (!IsValidIndex(index))
+            return false;
+        return _blocks[index] == null || _blocks[index].Type != BlockType.Air;
+    }
+
+    private static int GetIndex(BlockCoords blockCoords)
+    {
+        return (blockCoords.X << 8) + (blockCoords.Y << 4) + blockCoords.Z;
+    }
+
+    private static bool IsValidIndex(int index)
+    {
+        return index >= 0 && index < Chunk.BLOCKS_PER_CHUNK;
     }
 
     private BlockCoords LocalToWorld(BlockCoords blockCoords)

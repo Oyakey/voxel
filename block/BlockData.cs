@@ -2,9 +2,8 @@
 
 namespace Voxel;
 
-public class BlockData(Vector3 position, BlockType type = BlockType.Air)
+public class BlockData(BlockType type = BlockType.Air)
 {
-    public Vector3 Position { get; } = position;
     public BlockType Type { get; } = type;
 }
 

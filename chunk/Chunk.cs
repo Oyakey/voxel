@@ -14,6 +14,7 @@ public partial class Chunk : MeshInstance3D
     public const int LOWEST_CHUNK = -4;
     public const int HIGHEST_CHUNK = 12;
     public const int CHUNK_LENGTH = 16;
+    public const int BLOCKS_PER_CHUNK = 4096;
 
     private long _worldSeed = 123456789;
     private long _chunkSeed;

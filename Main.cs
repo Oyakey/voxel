@@ -1,5 +1,6 @@
 ﻿using Godot;
 using Voxel.Chunk;
+using Voxel.World.Save;
 
 namespace Voxel;
 
@@ -20,6 +21,7 @@ public partial class Main : Node3D
         var chunkParent = GetNode<Node3D>("Chunks");
         _chunkParent = chunkParent;
         _chunkGenerator = new ChunkGenerator(chunkParent, RenderDistance);
+        new Saver();
         ChunkGenerator.RenderChunk(new ChunkCoords(0, 0, 0));
     }
 
