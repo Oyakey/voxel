@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using Godot;
 
 namespace Voxel.World.Save;
@@ -23,7 +22,7 @@ public class Saver
             string s;
             while ((s = sr.ReadLine()) != null)
             {
-                GD.Print($"{s} - ");
+                GD.Print(s);
             }
         }
     }
