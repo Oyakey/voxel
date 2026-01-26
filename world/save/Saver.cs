@@ -1,12 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using Godot;
 using Voxel.Chunk;
 
 namespace Voxel.World.Save;
 
 public static class Saver
 {
-    private const byte VERSION = 1;
-    private const int HEADER_SIZE = 4;
+    private const byte VERSION = 3;
+    private const int HEADER_SIZE = 9;
     private const int BLOCKS_COUNT = 4096;
 
     public static void SaveChunk(ChunkData chunk, string saveDir)
@@ -16,9 +18,7 @@ public static class Saver
         using var writer = new BinaryWriter(File.Create(path));
         // Write header
         writer.Write(VERSION);
-        writer.Write((sbyte)chunk.Coords.X);
-        writer.Write((sbyte)chunk.Coords.Y);
-        writer.Write((sbyte)chunk.Coords.Z);
+        writer.Write(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         // Write blocks
         for (int x = 0; x < 16; x++)
         {
@@ -39,8 +39,8 @@ public static class Saver
 
         using var reader = new BinaryReader(File.OpenRead(path));
         byte version = reader.ReadByte();
-        // Skip coords (3 bytes) - we already know them
-        reader.ReadBytes(3);
+        // Skip timestamp (8 bytes)
+        reader.ReadInt64();
 
         var blocks = new BlockData[BLOCKS_COUNT];
         for (int i = 0; i < BLOCKS_COUNT; i++)
