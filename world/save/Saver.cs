@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Godot;
 using Voxel.Chunk;
@@ -19,17 +19,23 @@ public static class Saver
         // Write header
         writer.Write(VERSION);
         writer.Write(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-        // Write blocks
+        // Write blocks (use GetLocalBlock to only save this chunk's blocks)
         for (int x = 0; x < 16; x++)
         {
             for (int y = 0; y < 16; y++)
             {
                 for (int z = 0; z < 16; z++)
                 {
-                    writer.Write((byte)chunk.GetBlock(new BlockCoords(x, y, z)).Type);
+                    var block = chunk.GetLocalBlock(new BlockCoords(x, y, z));
+                    writer.Write((byte)(block?.Type ?? BlockType.Air));
                 }
             }
         }
+    }
+
+    public static bool ChunkFileExists(ChunkCoords coords, string saveDir)
+    {
+        return File.Exists(GetChunkPath(coords, saveDir));
     }
 
     public static BlockData[] LoadChunk(ChunkCoords coords, string saveDir)
@@ -43,8 +49,17 @@ public static class Saver
         reader.ReadInt64();
 
         var blocks = new BlockData[BLOCKS_COUNT];
-        for (int i = 0; i < BLOCKS_COUNT; i++)
-            blocks[i] = new BlockData((BlockType)reader.ReadByte());
+        for (int x = 0; x < 16; x++)
+        {
+            for (int y = 0; y < 16; y++)
+            {
+                for (int z = 0; z < 16; z++)
+                {
+                    var index = (x << 8) + (y << 4) + z;
+                    blocks[index] = new BlockData((BlockType)reader.ReadByte());
+                }
+            }
+        }
         return blocks;
     }
 

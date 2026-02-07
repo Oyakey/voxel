@@ -13,7 +13,7 @@ config_version=5
 config/name="Voxel"
 run/main_scene="uid://xxw4os14nv7l"
 config/features=PackedStringArray("4.4", "C#", "Mobile")
-config/icon="uid://jdnn3d2t8k83"
+config/icon="uid://ckkfn2pv4vohg"
 
 [debug]
 

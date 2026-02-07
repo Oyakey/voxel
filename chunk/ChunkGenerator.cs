@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Godot;
+using Voxel.World.Save;
 
 namespace Voxel.Chunk;
 
@@ -22,7 +23,7 @@ public class ChunkGenerator(Node3D chunkParent, int renderDistance)
     {
         if (_chunks.ContainsKey(chunkCoords))
             return;
-        var chunk = new ChunkData(chunkCoords);
+        var chunk = new ChunkData(chunkCoords, "testSaves");
         _chunks.Add(chunkCoords, chunk);
     }
 
@@ -36,9 +37,10 @@ public class ChunkGenerator(Node3D chunkParent, int renderDistance)
         // Generate all neighboring chunks before rendering.
         for (var x = -1; x <= 1; x++)
         {
-            for (var y = -1; y <= 1; y++)
+            for (var z = -1; z <= 1; z++)
             {
-                for (var z = -1; z <= 1; z++)
+                // GenerateBiomeTerrain(chunkCoords.X + x, chunkCoords.Z + z);
+                for (var y = -1; y <= 1; y++)
                 {
                     GenerateChunk(new ChunkCoords(chunkCoords.X + x, chunkCoords.Y + y, chunkCoords.Z + z));
                 }
@@ -49,6 +51,39 @@ public class ChunkGenerator(Node3D chunkParent, int renderDistance)
 
         // new Task(() => HandleAsyncSpawn(chunkData)).Start();
         HandleAsyncSpawn(chunkData);
+    }
+
+    private static void GenerateBiomeTerrain(int X, int Z)
+    {
+        var topBlockType = BlockType.Stone;
+        var airBlockType = BlockType.Air;
+
+        // Iterate over the whole vertical slice
+        for (int Y = 0; Y < Chunk.Y_CHUNKS; Y++)
+        {
+            // Init data
+            var chunkData = new ChunkData(new ChunkCoords(X, Y, Z));
+
+            // Loop over all the blocks
+            for (int y = 0; y < Chunk.CHUNK_LENGTH; y++)
+            {
+                for (int x = 0; x < Chunk.CHUNK_LENGTH; x++)
+                {
+                    for (int z = 0; z < Chunk.CHUNK_LENGTH; z++)
+                    {
+                        var worldX = X * Chunk.CHUNK_LENGTH + x;
+                        var worldY = Y * Chunk.CHUNK_LENGTH + y;
+                        var worldZ = Z * Chunk.CHUNK_LENGTH + z;
+
+                        var noiseHeight = Mathf.FloorToInt(Mathf.Sin(worldX * .1) * 10 - Mathf.Sin(worldZ * .1) * 10);
+                        var isAir = worldY < noiseHeight;
+
+                        chunkData.SetBlockAtCoords(new BlockCoords(x, y, z), new BlockData(isAir ? airBlockType : topBlockType));
+                        Saver.SaveChunk(chunkData, "testSaves");
+                    }
+                }
+            }
+        }
     }
 
     private void HandleAsyncSpawn(ChunkData chunkData)
