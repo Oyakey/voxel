@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Voxel.Blocks;
 
-namespace Voxel.Chunk;
+namespace Voxel.Chunks;
 
 public class MeshRenderer
 {

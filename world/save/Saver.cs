@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.IO;
 using Godot;
-using Voxel.Chunk;
 
 namespace Voxel.World.Save;
 
@@ -40,8 +39,16 @@ public static class Saver
 
     public static BlockData[] LoadChunk(ChunkCoords coords, string saveDir)
     {
+        var startTime = DateTime.Now;
         string path = GetChunkPath(coords, saveDir);
         if (!File.Exists(path)) return null;
+
+        // using var text = File.OpenRead(path);
+        //
+        // for (int i = 0; i < BLOCKS_COUNT; i++)
+        // {
+        //
+        // }
 
         using var reader = new BinaryReader(File.OpenRead(path));
         byte version = reader.ReadByte();
@@ -60,6 +67,7 @@ public static class Saver
                 }
             }
         }
+        var duration = DateTime.Now - startTime;
         return blocks;
     }
 

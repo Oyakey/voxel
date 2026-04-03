@@ -1,35 +1,24 @@
 using Godot;
-using Voxel.Chunk;
-using Voxel.World.Save;
+using Voxel.World;
 
 namespace Voxel;
 
 public partial class Main : Node3D
 {
-    private static ChunkGenerator _chunkGenerator;
-    private static Node3D _chunkParent;
+	private static ChunkGenerator _chunkGenerator;
+	private static Node3D _chunkParent;
 
-    public static ChunkGenerator ChunkGenerator => _chunkGenerator;
+	public static ChunkGenerator ChunkGenerator => _chunkGenerator;
 
-    public static ChunkCoords PlayerCurrentChunk { get; set; }
-    public static CharacterBody3D Player { get; set; }
+	public static ChunkCoords PlayerCurrentChunk { get; set; }
+	public static CharacterBody3D Player { get; set; }
 
-    public const int RenderDistance = 5;
+	public const int RenderDistance = 1;
 
-    private void _ready()
-    {
-        var chunkParent = GetNode<Node3D>("Chunks");
-        _chunkParent = chunkParent;
-        _chunkGenerator = new ChunkGenerator(chunkParent, RenderDistance);
-        ChunkGenerator.RenderChunk(new ChunkCoords(0, 0, 0));
-    }
-
-    private void _process(float _)
-    {
-        foreach (var chunk in _chunkGenerator._chunksToRender)
-        {
-            _chunkParent.AddChild(chunk);
-        }
-        _chunkGenerator._chunksToRender.Clear();
-    }
+	private void _ready()
+	{
+		var chunkParent = GetNode<Node3D>("Chunks");
+		_chunkParent = chunkParent;
+		_chunkGenerator = new ChunkGenerator(chunkParent, RenderDistance, new ChunkCache());
+	}
 }
