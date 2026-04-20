@@ -4,12 +4,18 @@ using Voxel.World.Biome;
 
 namespace Voxel.World;
 
-public class ChunkGenerator(Node3D chunkParent, int renderDistance, ChunkCache chunkCache)
+public class ChunkGenerator(
+        Node3D chunkParent,
+        int renderDistance,
+        ChunkCache chunkCache,
+        RerenderQueue rerenderQueue
+)
 {
     private readonly Dictionary<ChunkCoords, Chunk> _renderedChunks = [];
     private readonly Node3D _chunkParent = chunkParent;
     private readonly int _renderDistance = renderDistance;
     private readonly ChunkCache _chunkCache = chunkCache;
+    private readonly RerenderQueue _rerenderQueue = rerenderQueue;
     public List<Chunk> _chunksToRender = [];
 
     // public readonly Dictionary<ChunkCoords, ChunkData> ChunkCache = [];
@@ -24,6 +30,11 @@ public class ChunkGenerator(Node3D chunkParent, int renderDistance, ChunkCache c
 
     private void GenerateBiomeTerrain(int X, int Z)
     {
+        if (_chunkCache.ContainsChunk(new ChunkCoords(X, 0, Z)))
+        {
+            return;
+        }
+
         var chunks = BiomeGenerator.GenerateBiomeTerrain(X, Z);
 
         // Iterate over the whole vertical slice
@@ -36,7 +47,7 @@ public class ChunkGenerator(Node3D chunkParent, int renderDistance, ChunkCache c
 
     private void HandleAsyncSpawn(ChunkData chunkData)
     {
-        var chunk = Chunk.Spawn(chunkData, _chunkCache);
+        var chunk = Chunk.Spawn(chunkData, _chunkCache, _rerenderQueue);
         _renderedChunks.Add(chunkData.Coords, chunk);
         _chunkParent.AddChild(chunk);
     }

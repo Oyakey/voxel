@@ -24,6 +24,7 @@ public partial class Chunk : MeshInstance3D
 	private MeshRenderer _meshRenderer;
 	private ChunkCoords _chunkCoords;
 	private ChunkCache _chunkCache;
+	private RerenderQueue _rerenderQueue;
 
 	private static readonly PackedScene chunkPrefab = ResourceLoader
 	  .Load<PackedScene>("res://chunks/chunk.tscn");
@@ -31,12 +32,15 @@ public partial class Chunk : MeshInstance3D
 	private Mesh _tempMesh;
 
 	private bool _isRendering = false;
+	private bool _hasRendered = false;
+	private ulong _lastRerenderTime = 0;
 
-	public static Chunk Spawn(ChunkData chunkData, ChunkCache chunkCache)
+	public static Chunk Spawn(ChunkData chunkData, ChunkCache chunkCache, RerenderQueue rerenderQueue)
 	{
 		var chunk = chunkPrefab.Instantiate<Chunk>();
 		chunk._chunkCoords = chunkData.Coords;
 		chunk._chunkCache = chunkCache;
+		chunk._rerenderQueue = rerenderQueue;
 		var x = chunkData.Coords.X;
 		var y = chunkData.Coords.Y;
 		var z = chunkData.Coords.Z;
@@ -54,7 +58,7 @@ public partial class Chunk : MeshInstance3D
 	{
 		// If the chunk is already being rendered, we don't need to render it again
 		// If the chunk is not in the cache, it has not been generated yet.
-		return !_isRendering && _chunkCache.ContainsChunk(_chunkCoords);
+		return !_hasRendered && !_isRendering && _chunkCache.ContainsChunk(_chunkCoords);
 	}
 
 	public void Rerender()
@@ -64,9 +68,22 @@ public partial class Chunk : MeshInstance3D
 
 	private void _process(float _)
 	{
+		ListenToRerenderQueue();
 		RenderChunk();
 		AddMeshToScene();
 		RemoveChunkIfNecessary();
+	}
+
+	private void ListenToRerenderQueue()
+	{
+		if (_rerenderQueue.ShouldRender(_chunkCoords))
+		{
+			var queueRerenderTime = _rerenderQueue.GetRerenderTime(_chunkCoords);
+			if (queueRerenderTime != null && queueRerenderTime > _lastRerenderTime)
+			{
+				_hasRendered = false;
+			}
+		}
 	}
 
 	public void RenderChunk()
@@ -78,6 +95,7 @@ public partial class Chunk : MeshInstance3D
 		_meshRenderer = new MeshRenderer();
 
 		RenderBlocksOnThread();
+		// RenderBlocks();
 	}
 
 	private void RenderBlocksOnThread()
@@ -173,6 +191,12 @@ public partial class Chunk : MeshInstance3D
 
 					if (block == null)
 					{
+						// GD.PushWarning($"Block at {x}, {y}, {z} is null, this should not happen");
+						throw new Exception($"Block at {x}, {y}, {z} is null, this should not happen");
+					}
+
+					if (!IsBlockOpaque(block))
+					{
 						continue;
 					}
 
@@ -183,6 +207,9 @@ public partial class Chunk : MeshInstance3D
 					BlockData southBlock = GetBlock(new BlockCoords(x, y, z + 1));
 					BlockData northBlock = GetBlock(new BlockCoords(x, y, z - 1));
 
+					// if (!ChunkData.IsValidIndex(ChunkData.GetIndex(new BlockCoords(x, y + 1, z))))
+					// 	GD.PrintErr($"Block is of type {upBlock.Type}");
+					//
 					if (!IsBlockOpaque(eastBlock))
 						renderMode += (int)BlockDirection.East;
 					if (!IsBlockOpaque(westBlock))
@@ -237,6 +264,8 @@ public partial class Chunk : MeshInstance3D
 		arrMesh.SurfaceSetMaterial(0, atlasMaterial);
 
 		_tempMesh = arrMesh;
+		_hasRendered = true;
+		_lastRerenderTime = Time.GetTicksMsec();
 		_isRendering = false;
 	}
 
@@ -300,20 +329,53 @@ public partial class Chunk : MeshInstance3D
 
 	public BlockData GetBlock(BlockCoords blockCoords)
 	{
+		// var worldX = _chunkCoords.X * CHUNK_LENGTH + blockCoords.X;
+		// var worldY = _chunkCoords.Y * CHUNK_LENGTH + blockCoords.Y;
+		// var worldZ = _chunkCoords.Z * CHUNK_LENGTH + blockCoords.Z;
+		//
+		// var noiseHeight = Mathf.Sin(worldX * .1) * 10 - Mathf.Sin(worldZ * .1) * 10;
+		// var isAir = worldY > noiseHeight;
+		//
+		// return new BlockData(isAir ? BlockType.Air : BlockType.Stone);
+
+		var blockWorldCoords = GetChunkData().LocalToWorld(blockCoords);
+
 		// If block is in chunk: returns it.
 		if (ChunkData.IsValidIndex(ChunkData.GetIndex(blockCoords)))
 		{
+			if (blockWorldCoords == new BlockCoords(19, 0, 17))
+			{
+				GD.Print($"Local: {GetChunkData().GetLocalBlock(blockCoords)}");
+			}
 			return GetChunkData().GetLocalBlock(blockCoords);
 		}
 
-		// Else: we have to retrieve it from another block in the cache.
-		var blockWorldCoords = GetChunkData().LocalToWorld(blockCoords);
+		// Else: we have to retrieve it from another chunk in the cache.
+		// var blockWorldCoords = GetChunkData().LocalToWorld(blockCoords);
 		var chunkCoords = ChunkData.ChunkCoordsFromWorldBlockCoords(blockWorldCoords);
 		var chunkFromCache = _chunkCache.GetChunk(chunkCoords);
 
 		if (chunkFromCache != null)
 		{
-			return chunkFromCache.GetLocalBlock(ChunkData.WorldBlockCoordsToLocalBlockCoords(blockWorldCoords, chunkCoords));
+			var relativeBlockCoords = ChunkData.WorldBlockCoordsToLocalBlockCoords(
+					blockWorldCoords,
+					chunkCoords
+				);
+			var block = chunkFromCache.GetLocalBlock(
+					relativeBlockCoords
+			);
+
+
+			// if (Main.PlayerCurrentChunk.X == _chunkCoords.X && Main.PlayerCurrentChunk.Z == _chunkCoords.Y)
+			// {
+			// 	GD.Print($"{blockWorldCoords} {block.Type}");
+			// }
+			if (blockWorldCoords == new BlockCoords(19, 0, 17))
+			{
+				GD.Print($"Remote: {block}");
+			}
+
+			return block;
 		}
 
 		// If it is not in cache: it needs to be loaded from save file.

@@ -55,9 +55,21 @@ public class ChunkData(ChunkCoords coords)
     }
     public static int GetIndex(int x, int y, int z)
     {
+        if (x < 0 || x >= 16)
+            return -1;
+        if (y < 0 || y >= 16)
+            return -1;
+        if (z < 0 || z >= 16)
+            return -1;
         return (x << 8) + (y << 4) + z;
     }
 
+    public static bool IsValidCoords(BlockCoords blockCoords)
+    {
+        return blockCoords.X >= 0 && blockCoords.X < Chunk.CHUNK_LENGTH &&
+            blockCoords.Y >= 0 && blockCoords.Y < Chunk.CHUNK_LENGTH &&
+            blockCoords.Z >= 0 && blockCoords.Z < Chunk.CHUNK_LENGTH;
+    }
     public static bool IsValidIndex(int index)
     {
         return index >= 0 && index < Chunk.BLOCKS_PER_CHUNK;
@@ -75,9 +87,9 @@ public class ChunkData(ChunkCoords coords)
     public static ChunkCoords ChunkCoordsFromWorldBlockCoords(BlockCoords worldBlockCoords)
     {
         return new ChunkCoords(
-            Mathf.FloorToInt(worldBlockCoords.X / Chunk.CHUNK_LENGTH),
-            Mathf.FloorToInt(worldBlockCoords.Y / Chunk.CHUNK_LENGTH),
-            Mathf.FloorToInt(worldBlockCoords.Z / Chunk.CHUNK_LENGTH)
+            Mathf.FloorToInt((double)worldBlockCoords.X / Chunk.CHUNK_LENGTH),
+            Mathf.FloorToInt((double)worldBlockCoords.Y / Chunk.CHUNK_LENGTH),
+            Mathf.FloorToInt((double)worldBlockCoords.Z / Chunk.CHUNK_LENGTH)
         );
     }
 
