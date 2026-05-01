@@ -35,6 +35,8 @@ public class ChunkGenerator(
             return;
         }
 
+        GD.Print($"Generating chunk column {X}, {Z}");
+
         var chunks = BiomeGenerator.GenerateBiomeTerrain(X, Z);
 
         // Iterate over the whole vertical slice

@@ -63,7 +63,7 @@ public partial class Chunk : MeshInstance3D
 
 	public void Rerender()
 	{
-		RenderBlocksOnThread();
+		RenderBlocksTask();
 	}
 
 	private void _process(float _)
@@ -94,16 +94,16 @@ public partial class Chunk : MeshInstance3D
 		_isRendering = true;
 		_meshRenderer = new MeshRenderer();
 
-		RenderBlocksOnThread();
+		RenderBlocksTask();
 		// RenderBlocks();
 	}
 
-	private void RenderBlocksOnThread()
+	private void RenderBlocksTask()
 	{
-		new Task(RenderBlocks).Start();
+		Task.Run(RenderBlocks);
 	}
 
-	private void RenderBlocksAsync()
+	private void RenderBlocksThread()
 	{
 		new Thread(RenderBlocks).Start();
 	}
@@ -343,10 +343,6 @@ public partial class Chunk : MeshInstance3D
 		// If block is in chunk: returns it.
 		if (ChunkData.IsValidIndex(ChunkData.GetIndex(blockCoords)))
 		{
-			if (blockWorldCoords == new BlockCoords(19, 0, 17))
-			{
-				GD.Print($"Local: {GetChunkData().GetLocalBlock(blockCoords)}");
-			}
 			return GetChunkData().GetLocalBlock(blockCoords);
 		}
 
@@ -361,21 +357,9 @@ public partial class Chunk : MeshInstance3D
 					blockWorldCoords,
 					chunkCoords
 				);
-			var block = chunkFromCache.GetLocalBlock(
+			return chunkFromCache.GetLocalBlock(
 					relativeBlockCoords
 			);
-
-
-			// if (Main.PlayerCurrentChunk.X == _chunkCoords.X && Main.PlayerCurrentChunk.Z == _chunkCoords.Y)
-			// {
-			// 	GD.Print($"{blockWorldCoords} {block.Type}");
-			// }
-			if (blockWorldCoords == new BlockCoords(19, 0, 17))
-			{
-				GD.Print($"Remote: {block}");
-			}
-
-			return block;
 		}
 
 		// If it is not in cache: it needs to be loaded from save file.
