@@ -38,12 +38,17 @@ public partial class Chunk : MeshInstance3D
     private bool _hasRendered = false;
     private ulong _lastRerenderTime = 0;
 
-    public static Chunk Spawn(ChunkData chunkData, ChunkCache chunkCache, RerenderQueue rerenderQueue)
+    public static Chunk Spawn(
+            ChunkData chunkData,
+            ChunkCache chunkCache,
+            RerenderQueue rerenderQueue,
+            ushort lod = 1)
     {
         var chunk = chunkPrefab.Instantiate<Chunk>();
         chunk._chunkCoords = chunkData.Coords;
         chunk._chunkCache = chunkCache;
         chunk._rerenderQueue = rerenderQueue;
+        chunk._lod = lod;
         var x = chunkData.Coords.X;
         var y = chunkData.Coords.Y;
         var z = chunkData.Coords.Z;

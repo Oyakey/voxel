@@ -20,12 +20,12 @@ public class ChunkGenerator(
 
     // public readonly Dictionary<ChunkCoords, ChunkData> ChunkCache = [];
 
-    private void RenderChunk(ChunkCoords chunkCoords)
+    private void RenderChunk(ChunkCoords chunkCoords, ushort lod)
     {
         if (_renderedChunks.ContainsKey(chunkCoords))
             return;
 
-        HandleAsyncSpawn(new ChunkData(chunkCoords));
+        HandleAsyncSpawn(new ChunkData(chunkCoords), lod);
     }
 
     private void GenerateBiomeTerrain(int X, int Z)
@@ -47,9 +47,9 @@ public class ChunkGenerator(
         }
     }
 
-    private void HandleAsyncSpawn(ChunkData chunkData)
+    private void HandleAsyncSpawn(ChunkData chunkData, ushort lod)
     {
-        var chunk = Chunk.Spawn(chunkData, _chunkCache, _rerenderQueue);
+        var chunk = Chunk.Spawn(chunkData, _chunkCache, _rerenderQueue, lod);
         _renderedChunks.Add(chunkData.Coords, chunk);
         _chunkParent.AddChild(chunk);
     }
@@ -75,6 +75,9 @@ public class ChunkGenerator(
        );
     }
 
+    // TODO: Make this work with the LOD
+    // Chunks should be rerendered when there lod changes (when the player moves)
+    // Add a priotity based on distance to the player
     public void RenderChunksAround(ChunkCoords chunkCoords)
     {
         var renderDistanceChunks = CalculateRenderDistanceChunks();
@@ -88,11 +91,21 @@ public class ChunkGenerator(
                 );
                 for (var y = 0; y <= renderDistanceChunks.Y; y++)
                 {
+                    var distance = Mathf.Max(
+                        Mathf.Abs(x - renderDistanceChunks.X / 2),
+                        Mathf.Abs(z - renderDistanceChunks.Z / 2)
+                    );
+                    ushort lod = (ushort)(
+                        distance < 6 ? 1 :
+                        distance < 8 ? 2 :
+                        distance < 12 ? 4 :
+                        distance < 16 ? 8 :
+                        16);
                     RenderChunk(new ChunkCoords(
                         chunkCoords.X + x - renderDistanceChunks.X / 2,
                         y + Chunk.LOWEST_CHUNK,
                         chunkCoords.Z + z - renderDistanceChunks.Z / 2
-                    ));
+                    ), lod);
                 }
             }
         }

@@ -11,7 +11,7 @@ public partial class Main : Node3D
     public static ChunkCoords PlayerCurrentChunk { get; set; }
     public static CharacterBody3D Player { get; set; }
 
-    public const int RenderDistance = 5;
+    public const int RenderDistance = 5; //16;
 
     private void _ready()
     {
