@@ -1,5 +1,5 @@
 ﻿using Godot;
-using Voxel.World;
+using Voxel.World.Noise;
 
 namespace Voxel.World.Biome;
 
@@ -30,8 +30,7 @@ public class BiomeGenerator
                         var worldY = Y * Chunk.CHUNK_LENGTH + y;
                         var worldZ = Z * Chunk.CHUNK_LENGTH + z;
 
-                        var noiseHeight = Mathf.Sin(worldX * .1) * 10 - Mathf.Sin(worldZ * .1) * 10;
-                        // var noiseHeight = 12.0;
+                        var noiseHeight = getHeight(worldX, worldZ);
                         var isAir = worldY > noiseHeight;
 
                         chunkData.SetBlockAtCoords(
@@ -45,4 +44,14 @@ public class BiomeGenerator
         }
         return chunks;
     }
+
+    private static float getHeight(int x, int y)
+    {
+        return Mathf.FloorToInt(
+            PerlinNoise.ZoomedPerlinNoise(x, y, 256, 64f) -
+            PerlinNoise.ZoomedPerlinNoise(x, y, 32, 32f) -
+            PerlinNoise.ZoomedPerlinNoise(x, y, 4, 2f)
+        );
+    }
+
 }

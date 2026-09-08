@@ -23,13 +23,5 @@ public partial class Main : Node3D
             new ChunkCache(rerenderQueue),
             rerenderQueue
         );
-        // var worldCoords = new BlockCoords(3, 16, 3);
-        // GD.Print(Mathf.FloorToInt(-1.0 / 16.0));
-        // GD.Print(Mathf.FloorToInt(-0.5));
-        // GD.Print(Mathf.FloorToInt(0.5));
-        // GD.Print(Mathf.FloorToInt(1 / 16));
-        // var chunkCoords = ChunkData.ChunkCoordsFromWorldBlockCoords(worldCoords);
-        // GD.Print(chunkCoords);
-        // GD.Print(ChunkData.WorldBlockCoordsToLocalBlockCoords(worldCoords, chunkCoords));
     }
 }
