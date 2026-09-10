@@ -58,16 +58,16 @@ public partial class Chunk : MeshInstance3D
 
     public void _ready()
     {
-        // AddChild(new CsgBox3D());
         _collisionShape = GetNode<CollisionShape3D>("StaticBody3D/CollisionShape3D");
     }
 
-    public bool CanRender()
-    {
-        // If the chunk is already being rendered, we don't need to render it again
-        // If the chunk is not in the cache, it has not been generated yet.
-        return !_hasRendered && !_isRendering && _chunkCache.ContainsChunk(_chunkCoords);
-    }
+    // If the chunk is already being rendered, we don't need to render it again
+    // If the chunk is not in the cache, it has not been generated yet.
+    public bool CanRender =>
+        !_hasRendered && !_isRendering && _chunkCache.ContainsChunk(_chunkCoords);
+
+    public bool CanReRender =>
+        !_isRendering && _chunkCache.ContainsChunk(_chunkCoords);
 
     public void Rerender()
     {
@@ -96,7 +96,7 @@ public partial class Chunk : MeshInstance3D
 
     public void RenderChunk()
     {
-        if (!CanRender())
+        if (!CanRender)
             return;
 
         _isRendering = true;
@@ -134,10 +134,59 @@ public partial class Chunk : MeshInstance3D
         // var distanceYFromPlayer = Math.Abs(_chunkData.Coords.Y - playerChunkCoords.Y);
         var distanceZFromPlayer = Math.Abs(GetChunkData().Coords.Z - playerChunkCoords.Z);
 
+        var biggestDistance = Math.Max(distanceXFromPlayer, distanceZFromPlayer);
+
         // if (distanceXFromPlayer > Main.RenderDistance || distanceZFromPlayer > Main.RenderDistance || distanceYFromPlayer > Main.RenderDistance)
-        if (distanceXFromPlayer > Main.RenderDistance || distanceZFromPlayer > Main.RenderDistance)
+        if (biggestDistance > Main.RenderDistance)
         {
             Main.ChunkGenerator.RemoveChunk(GetChunkData().Coords);
+            return;
+        }
+
+        if (biggestDistance >= 16)
+        {
+            if (_lod != 16 && CanReRender)
+            {
+                _lod = 16;
+                Rerender();
+            }
+            return;
+        }
+
+        if (biggestDistance >= 12)
+        {
+            if (_lod != 8 && CanReRender)
+            {
+                _lod = 8;
+                Rerender();
+            }
+            return;
+        }
+
+        if (biggestDistance >= 8)
+        {
+            if (_lod != 4 && CanReRender)
+            {
+                _lod = 4;
+                Rerender();
+            }
+            return;
+        }
+
+        if (biggestDistance >= 6)
+        {
+            if (_lod != 2 && CanReRender)
+            {
+                _lod = 2;
+                Rerender();
+            }
+            return;
+        }
+
+        if (_lod != 1 && CanReRender)
+        {
+            _lod = 1;
+            Rerender();
         }
     }
 
@@ -187,11 +236,14 @@ public partial class Chunk : MeshInstance3D
 
         var hasAddedAFace = false;
 
-        for (var x = 0; x < CHUNK_LENGTH; x += _lod)
+        // We need to make a copy of the lod because it may be modified will rendering it.
+        var lod = _lod;
+
+        for (var x = 0; x < CHUNK_LENGTH; x += lod)
         {
-            for (var z = 0; z < CHUNK_LENGTH; z += _lod)
+            for (var z = 0; z < CHUNK_LENGTH; z += lod)
             {
-                for (var y = 0; y < CHUNK_LENGTH; y += _lod)
+                for (var y = 0; y < CHUNK_LENGTH; y += lod)
                 {
                     int renderMode = 0;
 
@@ -208,12 +260,12 @@ public partial class Chunk : MeshInstance3D
                         continue;
                     }
 
-                    BlockData eastBlock = GetBlock(new BlockCoords(x + _lod, y, z));
-                    BlockData westBlock = GetBlock(new BlockCoords(x - _lod, y, z));
-                    BlockData upBlock = GetBlock(new BlockCoords(x, y + _lod, z));
-                    BlockData downBlock = GetBlock(new BlockCoords(x, y - _lod, z));
-                    BlockData southBlock = GetBlock(new BlockCoords(x, y, z + _lod));
-                    BlockData northBlock = GetBlock(new BlockCoords(x, y, z - _lod));
+                    BlockData eastBlock = GetBlock(new BlockCoords(x + lod, y, z));
+                    BlockData westBlock = GetBlock(new BlockCoords(x - lod, y, z));
+                    BlockData upBlock = GetBlock(new BlockCoords(x, y + lod, z));
+                    BlockData downBlock = GetBlock(new BlockCoords(x, y - lod, z));
+                    BlockData southBlock = GetBlock(new BlockCoords(x, y, z + lod));
+                    BlockData northBlock = GetBlock(new BlockCoords(x, y, z - lod));
 
                     // if (!ChunkData.IsValidIndex(ChunkData.GetIndex(new BlockCoords(x, y + 1, z))))
                     // 	GD.PrintErr($"Block is of type {upBlock.Type}");
@@ -235,7 +287,7 @@ public partial class Chunk : MeshInstance3D
                     if (y > -4)
                         blockType = (renderMode & (int)BlockDirection.Up) != 0 ? new Grass() : new Dirt();
 
-                    if (AddFace(new BlockCoords(x, y, z), block, renderMode, blockType))
+                    if (AddFace(new BlockCoords(x, y, z), block, renderMode, blockType, lod))
                     {
                         hasAddedAFace = true;
                     }
@@ -280,7 +332,7 @@ public partial class Chunk : MeshInstance3D
     // This old system will be removed once mesh generation is finished.
     // It should increase performance by a lot. And allow mesh generation to be done in a separate thread.
     // The tradeoff is that we cannot use godot nodes anymore.
-    private bool AddFace(BlockCoords coords, BlockData block, int renderMode, IBlockType blockType)
+    private bool AddFace(BlockCoords coords, BlockData block, int renderMode, IBlockType blockType, ushort lod)
     {
         if (renderMode == 0)
             return false;
@@ -294,37 +346,37 @@ public partial class Chunk : MeshInstance3D
         {
             var texture = blockType.Texture.GetDirectionTexture(BlockDirection.East);
             var color = blockType.Color.GetDirectionColor(BlockDirection.East);
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.East, texture, color, _lod);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.East, texture, color, lod);
         }
         if ((renderMode & (int)BlockDirection.West) != 0)
         {
             var texture = blockType.Texture.GetDirectionTexture(BlockDirection.West);
             var color = blockType.Color.GetDirectionColor(BlockDirection.West);
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.West, texture, color, _lod);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.West, texture, color, lod);
         }
         if ((renderMode & (int)BlockDirection.Up) != 0)
         {
             var texture = blockType.Texture.GetDirectionTexture(BlockDirection.Up);
             var color = blockType.Color.GetDirectionColor(BlockDirection.Up);
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Up, texture, color, _lod);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Up, texture, color, lod);
         }
         if ((renderMode & (int)BlockDirection.Down) != 0)
         {
             var texture = blockType.Texture.GetDirectionTexture(BlockDirection.Down);
             var color = blockType.Color.GetDirectionColor(BlockDirection.Down);
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Down, texture, color, _lod);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.Down, texture, color, lod);
         }
         if ((renderMode & (int)BlockDirection.South) != 0)
         {
             var texture = blockType.Texture.GetDirectionTexture(BlockDirection.South);
             var color = blockType.Color.GetDirectionColor(BlockDirection.South);
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.South, texture, color, _lod);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.South, texture, color, lod);
         }
         if ((renderMode & (int)BlockDirection.North) != 0)
         {
             var texture = blockType.Texture.GetDirectionTexture(BlockDirection.North);
             var color = blockType.Color.GetDirectionColor(BlockDirection.North);
-            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.North, texture, color, _lod);
+            _meshRenderer.GenerateQuad(blockPosition, BlockDirection.North, texture, color, lod);
         }
         return true;
     }

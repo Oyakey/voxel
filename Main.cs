@@ -11,7 +11,7 @@ public partial class Main : Node3D
     public static ChunkCoords PlayerCurrentChunk { get; set; }
     public static CharacterBody3D Player { get; set; }
 
-    public const int RenderDistance = 5; //16;
+    public static int RenderDistance = 5; //16;
 
     private void _ready()
     {
@@ -23,5 +23,17 @@ public partial class Main : Node3D
             new ChunkCache(rerenderQueue),
             rerenderQueue
         );
+    }
+
+    public void _process(float _)
+    {
+        if (Input.IsActionJustPressed("increase_render_distance"))
+        {
+            RenderDistance += 1;
+        }
+        if (Input.IsActionJustPressed("decrease_render_distance"))
+        {
+            RenderDistance -= 1;
+        }
     }
 }

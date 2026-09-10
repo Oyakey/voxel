@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://xxw4os14nv7l"]
+[gd_scene format=3 uid="uid://xxw4os14nv7l"]
 
 [ext_resource type="Script" uid="uid://37pcrh44jucl" path="res://Main.cs" id="1_h2yge"]
 [ext_resource type="PackedScene" uid="uid://dyt6cdtojj6b2" path="res://player/player.tscn" id="1_ig7tw"]
@@ -23,22 +23,22 @@ glow_enabled = true
 font = ExtResource("5_lquwl")
 font_size = 32
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=2033741473]
 script = ExtResource("1_h2yge")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1198660582]
 environment = SubResource("Environment_1bvp3")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1826056875]
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Player" parent="." instance=ExtResource("1_ig7tw")]
+[node name="Player" parent="." unique_id=1489951873 instance=ExtResource("1_ig7tw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 100, 8)
 
-[node name="Chunks" type="Node3D" parent="."]
+[node name="Chunks" type="Node3D" parent="." unique_id=1045492716]
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." unique_id=4430276]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -47,7 +47,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="Control"]
+[node name="CenterContainer" type="CenterContainer" parent="Control" unique_id=2020449065]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -55,19 +55,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="Control/CenterContainer"]
+[node name="TextureRect" type="TextureRect" parent="Control/CenterContainer" unique_id=1747290852]
 texture_filter = 1
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 texture = ExtResource("4_1bvp3")
 expand_mode = 2
 
-[node name="Control" type="Control" parent="Control"]
+[node name="Control" type="Control" parent="Control" unique_id=750943095]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="ColorRect" type="ColorRect" parent="Control/Control"]
+[node name="ColorRect" type="ColorRect" parent="Control/Control" unique_id=763774552]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 12.0
@@ -75,7 +75,7 @@ offset_right = 619.0
 offset_bottom = 57.0
 color = Color(0, 0, 0, 0.196078)
 
-[node name="CoordText" type="Label" parent="Control/Control"]
+[node name="CoordText" type="Label" parent="Control/Control" unique_id=1826573443]
 layout_mode = 0
 offset_left = 22.0
 offset_top = 24.0
